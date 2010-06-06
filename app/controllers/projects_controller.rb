@@ -248,7 +248,7 @@ class ProjectsController < ApplicationController
       render_attachment_warning_if_needed(container)
 
       if !attachments.empty? && Setting.notified_events.include?('file_added')
-        Mailer.deliver_attachments_added(attachments[:files])
+        Mailer.attachments_added(attachments[:files])
       end
       redirect_to :controller => 'projects', :action => 'list_files', :id => @project
       return
