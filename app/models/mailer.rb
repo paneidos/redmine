@@ -384,14 +384,15 @@ class Mailer < ActionMailer::Base
   # https://rails.lighthouseapp.com/projects/8994/tickets/2338-actionmailer-mailer-views-and-content-type
   # https://rails.lighthouseapp.com/projects/8994/tickets/1799-actionmailer-doesnt-set-template_format-when-rendering-layouts
   
+  # FIXME: This is broken on ActionMailer 3
   def render_multipart(method_name, body)
     if Setting.plain_text_mail?
       content_type "text/plain"
       body render(:file => "#{method_name}.text.plain.rhtml", :body => body, :layout => 'mailer.text.plain.erb')
     else
       content_type "multipart/alternative"
-      part :content_type => "text/plain", :body => render(:file => "#{method_name}.text.plain.rhtml", :body => body, :layout => 'mailer.text.plain.erb')
-      part :content_type => "text/html", :body => render_message("#{method_name}.text.html.rhtml", body)
+      part :content_type => "text/plain", :body => render(:file => "#{method_name}.text.plain.rhtml", :body => body, :layout => 'mailer.text.plain.rhtml')
+      #part :content_type => "text/html", :body => render_message("#{method_name}.text.html.rhtml", body) # error finding view
     end
   end
 
