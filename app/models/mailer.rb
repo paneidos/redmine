@@ -23,6 +23,8 @@ class Mailer < ActionMailer::Base
 
   include ActionDispatch::Routing::UrlFor
   include Redmine::I18n
+  
+  self.prepend_view_path "app/views/mailer"
 
   def self.default_url_options
     h = Setting.host_name
