@@ -21,7 +21,7 @@ class IssuesHelperTest < HelperTestCase
   include ApplicationHelper
   include IssuesHelper
 
-  include ActionController::Assertions::SelectorAssertions
+  include ActionDispatch::Assertions::SelectorAssertions
   fixtures :projects, :trackers, :issue_statuses, :issues,
            :enumerations, :users, :issue_categories,
            :projects_trackers,
