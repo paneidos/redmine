@@ -42,7 +42,7 @@ class TimeEntry < ActiveRecord::Base
   validate :validate_time_entry
   after_initialize :update_activity
 
-  named_scope :visible, lambda {|*args| {
+  scope :visible, lambda {|*args| {
     :include => :project,
     :conditions => Project.allowed_to_condition(args.shift || User.current, :view_time_entries, *args)
   }}
