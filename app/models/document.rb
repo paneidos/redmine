@@ -46,7 +46,7 @@ class Document < ActiveRecord::Base
 
   def updated_on
     unless @updated_on
-      a = attachments.find(:first, :order => 'created_on DESC')
+      a = attachments.order(:created_on).reverse_order.first
       @updated_on = (a && a.created_on) || created_on
     end
     @updated_on
