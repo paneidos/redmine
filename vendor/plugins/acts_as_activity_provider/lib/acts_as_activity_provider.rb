@@ -82,8 +82,8 @@ module Redmine
             end
             scope_options[:conditions] = cond.conditions
             
-            with_scope(:find => scope_options) do
-              scope.find(:all, provider_options[:find_options].dup)
+            scope.with_scope(:find => scope_options) do
+              find(:all, provider_options[:find_options].dup)
             end
           end
         end
