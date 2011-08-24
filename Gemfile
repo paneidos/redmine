@@ -10,6 +10,8 @@ gem 'rubytree', '0.5.2', :require => 'tree'
 # gem 'coderay', '~> 0.9.7'
 gem 'coderay'
 
+gem "fastercsv", "~> 1.5.0", :platforms => [:mri_18, :jruby, :mingw_18]
+
 group :development do
 end
 
