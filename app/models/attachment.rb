@@ -46,7 +46,7 @@ class Attachment < ActiveRecord::Base
   cattr_accessor :storage_path
   @@storage_path = Redmine::Configuration['attachments_storage_path'] || "#{Rails.root}/files"
 
-  before_save :files_to_final_location
+  before_create :files_to_final_location
   after_destroy :delete_from_disk
 
   def validate_max_file_size
@@ -79,7 +79,7 @@ class Attachment < ActiveRecord::Base
   # and computes its MD5 hash
   def files_to_final_location
     if @temp_file && (@temp_file.size > 0)
-      logger.info("Saving attachment '#{self.diskfile}' (#{@temp_file.size} bytes)")
+      logger.debug("saving '#{self.diskfile}'")
       md5 = Digest::MD5.new
       File.open(diskfile, "wb") do |f|
         buffer = ""
@@ -90,7 +90,6 @@ class Attachment < ActiveRecord::Base
       end
       self.digest = md5.hexdigest
     end
-    @temp_file = nil
     # Don't save the content type if it's longer than the authorized length
     if self.content_type && self.content_type.length > 255
       self.content_type = nil
