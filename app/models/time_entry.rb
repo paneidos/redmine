@@ -40,13 +40,14 @@ class TimeEntry < ActiveRecord::Base
   validates_length_of :comments, :maximum => 255, :allow_nil => true
   before_validation :set_project_if_nil
   validate :validate_time_entry
+  after_initialize :update_activity
 
   named_scope :visible, lambda {|*args| {
     :include => :project,
     :conditions => Project.allowed_to_condition(args.shift || User.current, :view_time_entries, *args)
   }}
 
-  def after_initialize
+  def update_activity
     if new_record? && self.activity.nil?
       if default_activity = TimeEntryActivity.default
         self.activity_id = default_activity.id
