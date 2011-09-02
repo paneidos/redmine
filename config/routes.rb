@@ -162,6 +162,8 @@ Redmine::Application.routes.draw do |map|
     project.resources :versions, :shallow => true, :collection => {:close_completed => :put}, :member => {:status_by => :post}
     project.resources :news, :shallow => true
     project.resources :time_entries, :controller => 'timelog', :path_prefix => 'projects/:project_id'
+    
+    project.connect 'settings/:tab', :controller => 'projects', :action => 'settings', :conditions => {:method => :get}, :path_prefix => 'projects/:id'
 
     project.wiki_start_page 'wiki/index', :controller => 'wiki', :action => 'index', :conditions => {:method => :get}
     project.wiki_start_page 'wiki/date_index', :controller => 'wiki', :action => 'date_index', :conditions => {:method => :get}
@@ -187,7 +189,6 @@ Redmine::Application.routes.draw do |map|
   # TODO: port to be part of the resources route(s)
   map.with_options :controller => 'projects' do |project_mapper|
     project_mapper.with_options :conditions => {:method => :get} do |project_views|
-      project_views.connect 'projects/:id/settings/:tab', :controller => 'projects', :action => 'settings'
       project_views.connect 'projects/:project_id/issues/:copy_from/copy', :controller => 'issues', :action => 'new'
     end
   end
