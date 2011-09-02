@@ -760,7 +760,7 @@ class IssuesControllerTest < ActionController::TestCase
     assert issue.watched_by?(User.find(3))
     # Watchers notified
     mail = ActionMailer::Base.deliveries.last
-    assert_kind_of TMail::Mail, mail
+    assert_kind_of Mail::Message, mail
     assert [mail.bcc, mail.cc].flatten.include?(User.find(3).mail)
   end
 
@@ -1136,7 +1136,7 @@ class IssuesControllerTest < ActionController::TestCase
     assert_equal '125', issue.custom_value_for(2).value
 
     mail = ActionMailer::Base.deliveries.last
-    assert_kind_of TMail::Mail, mail
+    assert_kind_of Mail::Message, mail
     assert mail.subject.starts_with?("[#{issue.project.name} - #{issue.tracker.name} ##{issue.id}]")
     assert mail.body.encoded.include?("Subject changed from #{old_subject} to #{new_subject}")
   end
@@ -1160,7 +1160,7 @@ class IssuesControllerTest < ActionController::TestCase
     assert_equal 'New custom value', issue.custom_value_for(2).value
 
     mail = ActionMailer::Base.deliveries.last
-    assert_kind_of TMail::Mail, mail
+    assert_kind_of Mail::Message, mail
     assert mail.body.include?("Searchable field changed from 125 to New custom value")
   end
 
