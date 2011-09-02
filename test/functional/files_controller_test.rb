@@ -55,7 +55,7 @@ class FilesControllerTest < ActionController::TestCase
     mail = ActionMailer::Base.deliveries.last
     assert_kind_of TMail::Mail, mail
     assert_equal "[eCookbook] New file", mail.subject
-    assert mail.body.include?('testfile.txt')
+    assert mail.body.encoded.include?('testfile.txt')
   end
 
   def test_create_version_file
