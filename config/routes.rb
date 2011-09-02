@@ -75,6 +75,8 @@ Redmine::Application.routes.draw do |map|
       document_actions.connect 'documents/:id/:action', :action => /destroy|edit/
     end
   end
+  
+  map.connect '/projects/:project_id/issues', :controller => 'issues', :action => 'index'
 
   map.resources :issue_moves, :only => [:new, :create], :path_prefix => '/issues', :as => 'move'
   map.resources :queries, :only => [:index]
