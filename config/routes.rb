@@ -140,6 +140,9 @@ Redmine::Application.routes.draw do |map|
 
   # For nice "roadmap" in the url for the index action
   map.connect 'projects/:project_id/roadmap', :controller => 'versions', :action => 'index'
+  
+  # For nice "news" in the url for the index action
+  map.connect 'projects/:project_id/news', :controller => 'news', :action => 'index'
 
   map.all_news 'news', :controller => 'news', :action => 'index'
   map.formatted_all_news 'news.:format', :controller => 'news', :action => 'index'
