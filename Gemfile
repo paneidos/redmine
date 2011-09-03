@@ -20,6 +20,9 @@ gem 'ruby-prof'
 # gem 'jquery-rails'
 # gem 'prototype-rails'
 
+# TODO rails-3.1: review the core changes to awesome_nested_set and decide on actions
+gem 'awesome_nested_set'
+
 group :development do
 end
 
