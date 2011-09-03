@@ -295,7 +295,8 @@ module RepositoriesHelper
       days = []
       map = {}
       commit_hashes = []
-
+      refs_map = {}
+      heads.each{|r| refs_map[r.revision] ||= []; refs_map[r.revision]<<r}
       commits.reverse.each_with_index do |c,i|
         h = {}
         h[:parents] = c.parents.collect do |p|
@@ -304,7 +305,7 @@ module RepositoriesHelper
         h[:author] = c.author
         h[:time] = i
         h[:space] = 0
-        #h[:refs] = c.refs.collect{|r|r.name}.join(" ") unless c.refs.nil?
+        h[:refs] = refs_map[c.revision].join(" ") if refs_map.include? c.revision
         h[:id] = c.revision
         h[:date] = c.committed_on
         h[:message] = c.comments
