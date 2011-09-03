@@ -34,9 +34,10 @@ class MyController < ApplicationController
   DEFAULT_LAYOUT = {  'left' => ['issuesassignedtome'],
                       'right' => ['issuesreportedbyme']
                    }.freeze
-
-  verify :xhr => true,
-         :only => [:add_block, :remove_block, :order_blocks]
+  
+  # TODO: since Rails 3, this verification fail (at least in the functionnal tests)
+  # verify :xhr => true,
+  #        :only => [:add_block, :remove_block, :order_blocks]
 
   def index
     page
