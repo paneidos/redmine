@@ -100,12 +100,10 @@ class UsersController < ApplicationController
     @user.login = params[:user][:login]
     @user.password, @user.password_confirmation = params[:user][:password], params[:user][:password_confirmation] unless @user.auth_source_id
 
-    # TODO: Similar to My#account
-    @user.pref.attributes = params[:pref]
-    @user.pref[:no_self_notified] = (params[:no_self_notified] == '1')
-
     if @user.save
-      @user.pref.save
+      @user.pref.attributes = params[:pref]
+      @user.pref[:no_self_notified] = (params[:no_self_notified] == '1')
+      @user.pref.save!
       @user.notified_project_ids = (@user.mail_notification == 'selected' ? params[:notified_project_ids] : [])
 
       Mailer.account_information(@user, params[:user][:password]).deliver if params[:send_information]
