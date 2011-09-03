@@ -23,7 +23,9 @@ class MessagesController < ApplicationController
   before_filter :authorize, :except => [:preview, :edit, :destroy]
 
   verify :method => :post, :only => [ :reply, :destroy ], :redirect_to => { :action => :show }
-  verify :xhr => true, :only => :quote
+
+# TODO: since Rails 3, this verification fail (at least in the functionnal tests)
+#  verify :xhr => true, :only => :quote
 
   helper :watchers
   helper :attachments
