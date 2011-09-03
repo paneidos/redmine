@@ -186,6 +186,7 @@ module Redmine
         def revisions(path, identifier_from, identifier_to, options={})
           revs = Revisions.new
           cmd_args = %w|log --no-color --encoding=UTF-8 --raw --date=iso --pretty=fuller|
+          cmd_args << "--parents"
           cmd_args << "--reverse" if options[:reverse]
           cmd_args << "--all" if options[:all]
           cmd_args << "-n" << "#{options[:limit].to_i}" if options[:limit]
@@ -202,9 +203,10 @@ module Redmine
             parsing_descr = 0  #0: not parsing desc or files, 1: parsing desc, 2: parsing files
 
             io.each_line do |line|
-              if line =~ /^commit ([0-9a-f]{40})$/
+              if m = line =~ /^commit ([0-9a-f]{40})(( [0-9a-f]{40})*)$/
                 key = "commit"
                 value = $1
+                parents_str = $2
                 if (parsing_descr == 1 || parsing_descr == 2)
                   parsing_descr = 0
                   revision = Revision.new({
@@ -215,6 +217,7 @@ module Redmine
                     :message    => changeset[:description],
                     :paths      => files
                   })
+                  revision.parents = changeset[:parents]
                   if block_given?
                     yield revision
                   else
@@ -224,6 +227,7 @@ module Redmine
                   files = []
                 end
                 changeset[:commit] = $1
+                changeset[:parents] = parents_str.strip.split(' ') unless parents_str.nil? or parents_str == ""
               elsif (parsing_descr == 0) && line =~ /^(\w+):\s*(.*)$/
                 key = $1
                 value = $2
@@ -265,6 +269,8 @@ module Redmine
                 :message    => changeset[:description],
                 :paths      => files
                  })
+              revision.parents = changeset[:parents]
+
               if block_given?
                 yield revision
               else
@@ -348,6 +354,7 @@ module Redmine
         end
 
         class Revision < Redmine::Scm::Adapters::Revision
+          attr_accessor :parents
           # Returns the readable identifier
           def format_identifier
             identifier[0,8]
