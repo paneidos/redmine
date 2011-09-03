@@ -1,0 +1,17 @@
+<%unless days_commits.nil?%>
+<%= javascript_include_tag "raphael.js" %>
+<script type="text/javascript" charset="utf-8">
+	var chunk1={commits:<%=days_commits[1].to_json%>}
+	var days=<%=days_commits[0].to_json%>
+</script>
+<%= javascript_include_tag "branch_graph.js" %>
+
+<script type="text/javascript">
+	window.onload = function(){
+		branchGraph(document.getElementById("holder"));
+	}
+</script>
+<%= stylesheet_link_tag "branch_graph.css" %>
+
+<div id="holder" class="graph"></div>
+<%end%>

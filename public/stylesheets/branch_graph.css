@@ -1,0 +1,6 @@
+#holder {
+    border: solid 1px #999;
+    cursor: move;
+    overflow: scroll;
+    max-height: 80%;
+}
