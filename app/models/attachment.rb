@@ -78,7 +78,8 @@ class Attachment < ActiveRecord::Base
   # Copies the temporary file to its final location
   # and computes its MD5 hash
   def files_to_final_location
-    if @temp_file && (@temp_file.size > 0)
+    temp_file_size = @temp_file ? (@temp_file.respond_to?(:decoded) ? @temp_file.decoded.length : @temp_file.size) : 0
+    if temp_file_size > 0
       logger.debug("saving '#{self.diskfile}'")
       md5 = Digest::MD5.new
       File.open(diskfile, "wb") do |f|
