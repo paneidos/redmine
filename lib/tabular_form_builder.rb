@@ -27,8 +27,8 @@ class TabularFormBuilder < ActionView::Helpers::FormBuilder
 
   (field_helpers - %w(radio_button hidden_field fields_for) + %w(date_select)).each do |selector|
     src = <<-END_SRC
-    def #{selector}(field, options = {})
-      label_for_field(field, options) + super
+    def #{selector}(field, options = {}) 
+      label_for_field(field, options) + super.html_safe
     end
     END_SRC
     class_eval src, __FILE__, __LINE__
