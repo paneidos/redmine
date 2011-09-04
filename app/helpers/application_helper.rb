@@ -339,7 +339,7 @@ module ApplicationHelper
   end
 
   def syntax_highlight(name, content)
-    Redmine::SyntaxHighlighting.highlight_by_filename(content, name)
+    Redmine::SyntaxHighlighting.highlight_by_filename(content, name).html_safe
   end
 
   def to_path_param(path)
