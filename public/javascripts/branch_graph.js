@@ -13,7 +13,7 @@ for (var i = 0, ii = commits.length; i < ii; i++) {
     mtime = Math.max(mtime, commits[i].time);
     mspace = Math.max(mspace, commits[i].space);
 }
-mspace = mspace + 6;
+
 for (i = 0; i < ii; i++) {
     if (commits[i].id in parents) {
         commits[i].isParent = true;
@@ -24,29 +24,46 @@ var colors = ["#000"];
 for (var k = 0; k < mspace; k++) {
     colors.push(Raphael.getColor());
 }
-function branchGraph(holder) {
-    var ch = mspace * 20 + 20, cw = mtime * 20 + 20,
-        r = Raphael("holder", cw, ch),
+function branchGraph(holder,vertical) {
+    if(vertical == null) vertical = false;
+    var xstep = 20, ystep = 20;
+    var ch, cw;
+    if(vertical){
+        cw = mspace * xstep + xstep;
+        ch = mtime * ystep + ystep;
+    }else{
+        ch = mspace * ystep + ystep + 6;
+        cw = mtime * xstep + xstep;
+    }
+    var r = Raphael("holder", cw, ch),
         top = r.set();
     var cuday = 0, cumonth = "";
-    r.rect(0,0,days.length*20+20,40).attr({fill: "#999"});
-    
-    for (mm = 0; mm < days.length; mm++) {
-        if(days[mm] != null){
-            if(cuday != days[mm][0]){
-                r.text(10+mm*20,30,days[mm][0]).attr({font: "12px Fontin-Sans, Arial", fill: "#444"});
-                cuday = days[mm][0]
+
+    if(!vertical){
+        r.rect(0,0,days.length*xstep+xstep,40).attr({fill: "#999"});
+        for (mm = 0; mm < days.length; mm++) {
+            if(days[mm] != null){
+                if(cuday != days[mm][0]){
+                    r.text(10+mm*xstep,30,days[mm][0]).attr({font: "12px Fontin-Sans, Arial", fill: "#444"});
+                    cuday = days[mm][0]
+                }
+                if(cumonth != days[mm][1]){
+                    r.text(10+mm*xstep,10,days[mm][1]).attr({font: "12px Fontin-Sans, Arial", fill: "#444"});
+                    cumonth = days[mm][1]
+                }
+
             }
-            if(cumonth != days[mm][1]){
-                r.text(10+mm*20,10,days[mm][1]).attr({font: "12px Fontin-Sans, Arial", fill: "#444"});
-                cumonth = days[mm][1]
-            }
-            
         }
     }
     for (i = 0; i < ii; i++) {
-        var x = 10 + 20 * commits[i].time,
-            y = 70 + 20 * commits[i].space;
+        var x, y;
+        if(vertical){
+            y = 10 + ystep *(mtime - commits[i].time);
+            x = xstep * commits[i].space;
+        } else {
+            x = 10 + xstep * commits[i].time;
+            y = 70 + ystep * commits[i].space;
+        }
         r.circle(x, y, 3).attr({fill: colors[commits[i].space], stroke: "none"});
         if (commits[i].refs != null && commits[i].refs != "") {
             var longrefs = commits[i].refs
@@ -55,27 +72,39 @@ function branchGraph(holder) {
               shortrefs = shortrefs.substr(0,13) + "...";
             }
             var t = r.text(x+5,y+5,shortrefs).attr({font: "12px Fontin-Sans, Arial", fill: "#666",
-            title: longrefs, cursor: "pointer", rotation: "90"});
-            
+            title: longrefs, cursor: "pointer", rotation: vertical ? "0" : "90"});
+
             var textbox = t.getBBox();
-            t.translate(textbox.height/-4,textbox.width/2);
+            if(vertical) {
+                t.translate(textbox.width/2,textbox.height/-3);
+            } else {
+                t.translate(textbox.height/-4,textbox.width/2);
+            }
         }
         for (var j = 0, jj = commits[i].parents.length; j < jj; j++) {
             var c = comms[commits[i].parents[j][0]];
             if (c) {
-                var cx = 10 + 20 * c.time,
-                    cy = 70 + 20 * c.space;
-                if (c.space == commits[i].space) {
-                    r.path("M" + (x - 5) + "," + (y + .0001) + "L" + (15 + 20 * c.time) + "," + (y + .0001))
-                    .attr({stroke: colors[c.space], "stroke-width": 2});
-                
-                } else if (c.space < commits[i].space) {
-                    r.path(["M", x - 5, y + .0001, "l-5-2,0,4,5,-2C",x-5,y,x -17, y+2, x -20, y-10,"L", cx,y-10,cx , cy])
-                    .attr({stroke: colors[commits[i].space], "stroke-width": 2});
+                var cy, cx;
+                if(vertical){
+                    cy = 10 + ystep * (mtime - c.time),
+                    cx = xstep * c.space;
                 } else {
-                    r.path(["M", x-5, y, "l-5-2,0,4,5,-2C",x-5,y,x -17, y-2, x -20, y+10,"L", cx,y+10,cx , cy])
-                    .attr({stroke: colors[commits[i].space], "stroke-width": 2});
+                    cx = 10 + xstep * c.time,
+                    cy = 70 + ystep * c.space;
                 }
+                var p,arrow;
+                if (c.space == commits[i].space) {
+                    p = r.path("M" + x + "," + y + "L" + cx + "," + cy);
+                } else
+                if(vertical){
+                    p = r.path(["M", x, y, "C",x,y,x, y+(cy-y)/2,x+(cx-x)/2, y+(cy-y)/2, "C", x+(cx-x)/2,y+(cy-y)/2, cx, cy-(cy-y)/2, cx, cy]);
+                } else if (c.space < commits[i].space) {
+                    //p = r.path(["M", x, y, "C",x,y+5,x -2, y+17, x -10, y+20,"L", cx+(xstep/2),cy,cx, cy]);
+                    p = r.path(["M", x-5, y, "l-5-2,0,4,5,-2C",x-5,y,x -17, y+2, x -20, y-10,"L", cx,y-(ystep/2),cx , cy]);
+                } else {
+                    p = r.path(["M", x-5, y, "l-5-2,0,4,5,-2C",x-5,y,x -17, y-2, x -20, y+10,"L", cx,y+(ystep/2),cx , cy]);
+                }
+                p.attr({stroke: colors[commits[i].space], "stroke-width": 1.5});
             }
         }
         (function (c, x, y) {
@@ -92,9 +121,6 @@ function branchGraph(holder) {
     top.toFront();
     var hw = holder.offsetWidth,
         hh = holder.offsetHeight,
-        v = r.rect(hw - 8, 0, 4, Math.pow(hh, 2) / ch, 2).attr({fill: "#000", opacity: 0}),
-        h = r.rect(0, hh - 8, Math.pow(hw, 2) / cw, 4, 2).attr({fill: "#000", opacity: 0}),
-        bars = r.set(v, h),
         drag,
         dragger = function (e) {
             if (drag) {
@@ -107,12 +133,10 @@ function branchGraph(holder) {
         e = e || window.event;
         drag = {x: e.clientX, y: e.clientY, st: holder.scrollTop, sl: holder.scrollLeft};
         document.onmousemove = dragger;
-        bars.animate({opacity: .5}, 300);
     };
     document.onmouseup = function () {
         drag = false;
         document.onmousemove = null;
-        bars.animate({opacity: 0}, 300);
     };
     holder.scrollLeft = cw;
 };

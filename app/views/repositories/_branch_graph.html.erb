@@ -1,3 +1,4 @@
+<%vertical ||= false%>
 <%unless days_commits.nil?%>
 <%= javascript_include_tag "raphael.js" %>
 <script type="text/javascript" charset="utf-8">
@@ -8,10 +9,10 @@
 
 <script type="text/javascript">
 	window.onload = function(){
-		branchGraph(document.getElementById("holder"));
+		branchGraph(document.getElementById("holder"), <%=vertical%>);
 	}
 </script>
 <%= stylesheet_link_tag "branch_graph.css" %>
 
-<div id="holder" class="graph"></div>
+<div id="holder" class="branch_graph<%="_vertical" if vertical %>"></div>
 <%end%>

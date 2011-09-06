@@ -1,4 +1,8 @@
-#holder {
+.branch_graph_vertical {
+    overflow: hidden;
+    max-height: 80%;
+}
+.branch_graph {
     border: solid 1px #999;
     cursor: move;
     overflow: scroll;
