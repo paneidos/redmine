@@ -83,7 +83,7 @@ class UsersController < ApplicationController
 
     respond_to do |format|
       format.html { render :layout => 'base' }
-      format.api
+#      format.api
     end
   end
 
@@ -116,7 +116,7 @@ class UsersController < ApplicationController
             {:controller => 'users', :action => 'edit', :id => @user}
           )
         }
-        format.api  { render :action => 'show', :status => :created, :location => user_url(@user) }
+#        format.api  { render :action => 'show', :status => :created, :location => user_url(@user) }
       end
     else
       @auth_sources = AuthSource.find(:all)
@@ -125,7 +125,7 @@ class UsersController < ApplicationController
 
       respond_to do |format|
         format.html { render :action => 'new' }
-        format.api  { render_validation_errors(@user) }
+#        format.api  { render_validation_errors(@user) }
       end
     end
   end
@@ -164,7 +164,7 @@ class UsersController < ApplicationController
           flash[:notice] = l(:notice_successful_update)
           redirect_to :back
         }
-        format.api  { head :ok }
+#        format.api  { head :ok }
       end
     else
       @auth_sources = AuthSource.find(:all)
@@ -174,7 +174,7 @@ class UsersController < ApplicationController
 
       respond_to do |format|
         format.html { render :action => :edit }
-        format.api  { render_validation_errors(@user) }
+#        format.api  { render_validation_errors(@user) }
       end
     end
   rescue ::ActionController::RedirectBackError
