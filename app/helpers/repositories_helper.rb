@@ -290,12 +290,13 @@ module RepositoriesHelper
     # @param [Array<GraphCommit>] comits to index
     #
     # @return [Array<TimeDate>] list of commit dates corelated with time on commits
-    def index_commits(commits, heads)
+    def index_commits(commits, heads, href_proc = nil)
       return nil if commits.nil? or commits.first.parents.nil?
       days = []
       map = {}
       commit_hashes = []
       refs_map = {}
+      href_proc ||= Proc.new {|x|x}
       heads.each{|r| refs_map[r.revision] ||= []; refs_map[r.revision]<<r}
       commits.reverse.each_with_index do |c,i|
         h = {}
@@ -310,6 +311,7 @@ module RepositoriesHelper
         h[:date] = c.committed_on
         h[:message] = c.comments
         h[:login] = c.author
+        h[:href] = href_proc.call(c.revision)
         commit_hashes << h
         days[i]=[c.committed_on.day,c.committed_on.strftime("%b")]
         map[c.revision] = h

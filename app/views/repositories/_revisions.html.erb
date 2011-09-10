@@ -13,14 +13,22 @@
 <% show_diff = revisions.size > 1 %>
 <% line_num = 1 %>
 <% revisions.each do |changeset| %>
-<tr class="changeset <%= cycle 'odd', 'even' %>">
+<tr class="changeset <%= cycle 'odd', 'even' %>" style="height: 18px">
 <% if line_num == 1 %>
-<td rowspan="<%= revisions.size %>">
-  <%= render :partial => 'branch_graph',
-             :locals => {
-                     :days_commits => index_commits(revisions, @repository.branches),
-                     :vertical => true
-                  } %>
+<td rowspan="<%= revisions.size %>" style="background-color: #fffffb;">
+    <% href_base = Proc.new {|x| url_for(:controller => 'repositories',
+                                         :action => 'revision',
+                                         :id => project,
+                                         :rev => x) } %>
+    <%= render :partial => 'branch_graph',
+               :locals => {
+                    :days_commits => index_commits(
+                                         revisions,
+                                         @repository.branches,
+                                         href_base
+                                            ),
+                    :vertical => true
+                    } %>
 </td>
 <%end%>
 <td class="id"><%= link_to_revision(changeset, project) %></td>
