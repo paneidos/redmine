@@ -110,11 +110,15 @@ function branchGraph(holder,vertical) {
         (function (c, x, y) {
             top.push(r.circle(x, y, 10).attr({fill: "#000", opacity: 0, cursor: "pointer"})
             .hover(function () {
-                var s = r.text(100, 100,c.author + "\n \n" +c.id + "\n \n" + c.message).attr({fill: "#fff"});
-                this.popup = r.popupit(x, y + 5, s, 0);
-                top.push(this.popup.insertBefore(this));
+                if(!vertical){
+                    var s = r.text(100, 100,c.author + "\n \n" +c.id + "\n \n" + c.message).attr({fill: "#fff"});
+                    this.popup = r.popupit(x, y + 5, s, 0);
+                    top.push(this.popup.insertBefore(this));
+                }
             }, function () {
-                this.popup && this.popup.remove() && delete this.popup;
+                if(!vertical){
+                    this.popup && this.popup.remove() && delete this.popup;
+                }
             }));
         }(commits[i], x, y));
     }
