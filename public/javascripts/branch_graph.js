@@ -59,12 +59,14 @@ function branchGraph(holder,vertical) {
         var x, y;
         if(vertical){
             y = 10 + ystep *(mtime - commits[i].time);
-            x = xstep * commits[i].space;
+            x = 3 + xstep * commits[i].space;
         } else {
             x = 10 + xstep * commits[i].time;
             y = 70 + ystep * commits[i].space;
         }
-        r.circle(x, y, 3).attr({fill: colors[commits[i].space], stroke: "none"});
+        var stroke = "none";
+        if(commits[i].highlight) stroke = "#f00";
+        r.circle(x, y, 3).attr({fill: colors[commits[i].space], stroke: stroke});
         if (commits[i].refs != null && commits[i].refs != "") {
             var longrefs = commits[i].refs
             var shortrefs = commits[i].refs;
@@ -83,16 +85,17 @@ function branchGraph(holder,vertical) {
         }
         for (var j = 0, jj = commits[i].parents.length; j < jj; j++) {
             var c = comms[commits[i].parents[j][0]];
+            var p,arrow;
             if (c) {
                 var cy, cx;
                 if(vertical){
                     cy = 10 + ystep * (mtime - c.time),
-                    cx = xstep * c.space;
+                    cx = 3 + xstep * c.space;
                 } else {
                     cx = 10 + xstep * c.time,
                     cy = 70 + ystep * c.space;
                 }
-                var p,arrow;
+
                 if (c.space == commits[i].space) {
                     p = r.path("M" + x + "," + y + "L" + cx + "," + cy);
                 } else
@@ -104,8 +107,15 @@ function branchGraph(holder,vertical) {
                 } else {
                     p = r.path(["M", x-5, y, "l-5-2,0,4,5,-2C",x-5,y,x -17, y-2, x -20, y+10,"L", cx,y+(ystep/2),cx , cy]);
                 }
-                p.attr({stroke: colors[commits[i].space], "stroke-width": 1.5});
+
+            } else {
+                if(vertical){
+                    p = r.path("M" + x + "," + y + "L" + x + "," + ch);
+                } else {
+                    p = r.path("M" + x + "," + y + "L" + 0 + "," + y);
+                }
             }
+            p.attr({stroke: colors[commits[i].space], "stroke-width": 1.5});
         }
         (function (c, x, y) {
             top.push(r.circle(x, y, 10).attr({fill: "#000", opacity: 0, cursor: "pointer", href: commits[i].href})
