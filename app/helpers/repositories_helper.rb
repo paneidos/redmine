@@ -345,21 +345,27 @@ module RepositoriesHelper
     # Add space mark on commit and its parents
     #
     # @param [Fixnum] space (row on the graph) to be set
-    # @param [GraphCommit] the commit object.
-    # @param [Hash<String,GraphCommit>] map of commits
+    # @param [Hash] the commit object.
+    # @param [Hash<String,Hash>] map of commits
     #
     # @return [Fixnum] max space used.
     def mark_chain(mark, commit, map)
-      commit[:space] = mark  if commit[:space] == 0
-      m1 = mark-1
-      marks = commit[:parents].collect do |p|
-        if map.include? p[0]  and map[p[0]][:space] == 0 then
-          mark_chain(m1+=1, map[p[0]],map)
-        else
-          m1+1
+      stack = [[mark,commit]]
+      markmax = mark
+      until stack.empty?
+        current = stack.pop;
+        m,commit = current
+        commit[:space] = m  if commit[:space] == 0
+        m1 = m -1
+        commit[:parents].each_with_index do |p,i|
+          psha = p[0]
+          if map.include? psha  and  map[psha][:space] == 0 then
+            stack << [m1+=1, map[psha]] if i == 0
+            stack = [[m1+=1, map[psha]]]+stack if i > 0
+          end
         end
+        markmax = m1 if markmax < m1
       end
-      marks << mark
-      return marks.compact.max
+      return markmax;
     end
 end
