@@ -1,3 +1,10 @@
+//= require prototype
+//= require rails
+//= require effects
+//= require controls
+//= require dragdrop
+//= require_self
+
 /* redMine - project management software
    Copyright (C) 2006-2008  Jean-Philippe Lang */
 
