@@ -24,6 +24,16 @@ gem 'ruby-prof'
 
 gem 'therubyracer', :platforms => [:mri_18, :mri_19]
 
+# Gems used only for assets and not required
+# in production environments by default.
+group :assets do
+  # gem 'sass-rails', "  ~> 3.1.1"
+  # gem 'coffee-rails', "~> 3.1.1"
+  gem 'sass-rails'
+  gem 'coffee-rails'
+  gem 'uglifier'
+end
+
 # TODO rails-3.1: review the core changes to awesome_nested_set and decide on actions
 gem 'awesome_nested_set'
 ## TODO rails-3.1: review the core changes to open_id_authentication and decide on actions
