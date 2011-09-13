@@ -21,6 +21,8 @@ gem "fastercsv", "~> 1.5.0", :platforms => [:mri_18, :jruby, :mingw_18]
 gem 'ruby-prof'
 # gem 'jquery-rails'
 # gem 'prototype-rails'
+# gem 'prototype-rails', :git => "https://github.com/rails/prototype-rails.git"
+gem 'prototype-rails'
 
 gem 'therubyracer', :platforms => [:mri_18, :mri_19]
 
