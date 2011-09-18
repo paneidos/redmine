@@ -1,7 +1,8 @@
-<% remote_form_for :repository, @repository,
+<%= form_for @repository, { 
+                   :as => :repository, :remote => true,
                    :url => { :controller => 'repositories', :action => 'edit', :id => @project },
                    :builder => TabularFormBuilder,
-                   :lang => current_language do |f| %>
+                   :lang => current_language } do |f| %>
 
 <%= error_messages_for 'repository' %>
 
