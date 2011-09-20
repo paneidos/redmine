@@ -160,12 +160,6 @@ Redmine::Application.routes.draw do
   # For nice "roadmap" in the url for the index action
   match '/projects/:project_id/roadmap' => 'versions#index'
 
-  match '/news' => 'news#index', :as => 'all_news'
-  match '/news.:format' => 'news#index', :as => 'formatted_all_news'
-  match '/news/preview' => 'previews#news', :as => 'preview_news'
-  match '/news/:id/comments' => 'comments#create', :via => :post
-  match '/news/:id/comments/:comment_id' => 'comments#destroy', :via => :delete
-
   resources :projects do
     member do
       match :copy, :via => [:get, :post]
@@ -223,6 +217,13 @@ Redmine::Application.routes.draw do
   end
 
   match '/projects/:project_id/issue_categories/new' => 'issue_categories#new'
+
+  # those need to be after the resources :news above so that they have a lower priority
+  match '/news' => 'news#index', :as => 'all_news'
+  match '/news.:format' => 'news#index', :as => 'formatted_all_news'
+  match '/news/preview' => 'previews#news', :as => 'preview_news'
+  match '/news/:id/comments' => 'comments#create', :via => :post
+  match '/news/:id/comments/:comment_id' => 'comments#destroy', :via => :delete
 
   scope :controller => 'repositories' do
     scope :via => :get do
