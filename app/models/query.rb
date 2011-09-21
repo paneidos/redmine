@@ -129,6 +129,8 @@ class Query < ActiveRecord::Base
 
   cattr_reader :operators_by_filter_type
 
+  after_initialize :is_project_nil
+
   @@available_columns = [
     QueryColumn.new(:project, :sortable => "#{Project.table_name}.name", :groupable => true),
     QueryColumn.new(:tracker, :sortable => "#{Tracker.table_name}.position", :groupable => true),
@@ -164,7 +166,7 @@ class Query < ActiveRecord::Base
     self.filters ||= { 'status_id' => {:operator => "o", :values => [""]} }
   end
 
-  def after_initialize
+  def is_project_nil
     # Store the fact that project is nil (used in #editable_by?)
     @is_for_all = project.nil?
   end
