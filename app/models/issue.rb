@@ -86,6 +86,7 @@ class Issue < ActiveRecord::Base
   before_save :close_duplicates, :update_done_ratio_from_issue_status
   after_save :reschedule_following_issues, :update_nested_set_attributes, :update_parent_attributes, :create_journal
   after_destroy :update_parent_attributes
+  after_initialize :set_default_values
 
   # Returns a SQL conditions string used to find all issues visible by the specified user
   def self.visible_condition(user, options={})
@@ -121,7 +122,7 @@ class Issue < ActiveRecord::Base
     end
   end
 
-  def after_initialize
+  def set_default_values
     if new_record?
       # set default values for new records only
       self.status ||= IssueStatus.default
