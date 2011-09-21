@@ -46,6 +46,7 @@ class IssueRelation < ActiveRecord::Base
   attr_protected :issue_from_id, :issue_to_id
 
   before_save :handle_issue_order
+  after_initialize :set_relation_type_for_blank
 
   def visible?(user=User.current)
     (issue_from.nil? || issue_from.visible?(user)) && (issue_to.nil? || issue_to.visible?(user))
@@ -57,7 +58,7 @@ class IssueRelation < ActiveRecord::Base
         (issue_to.nil? || user.allowed_to?(:manage_issue_relations, issue_to.project)))
   end
 
-  def after_initialize
+  def set_relation_type_for_blank
     if new_record?
       if relation_type.blank?
         self.relation_type = IssueRelation::TYPE_RELATES
