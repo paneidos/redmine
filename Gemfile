@@ -31,7 +31,9 @@ group :test do
   # gem 'shoulda', '~> 2.10.3'
   gem 'shoulda'
   gem 'mocha'
-  gem 'edavis10-object_daddy', :require => 'object_daddy'
+  ## ruby script/rails plugin install git://github.com/awebneck/object_daddy.git
+  # gem 'edavis10-object_daddy', :require => 'object_daddy'
+  # gem 'object_daddy', :git => 'https://github.com/awebneck/object_daddy.git'
 
   # cannot install on mingw due to fail installing linecache with native extensions
   platforms :mri_18 do gem 'ruby-debug' end

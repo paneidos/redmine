@@ -33,3 +33,5 @@ vendor/rails
 Gemfile.lock
 Gemfile.local
 
+vendor/plugins/object_daddy/
+
