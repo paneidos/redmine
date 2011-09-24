@@ -35,11 +35,11 @@ module IssuesHelper
     @cached_label_assigned_to ||= l(:field_assigned_to)
     @cached_label_priority ||= l(:field_priority)
     
-    link_to_issue(issue) + "<br /><br />" +
+    (link_to_issue(issue) + "<br /><br />" +
       "<strong>#{@cached_label_start_date}</strong>: #{format_date(issue.start_date)}<br />" +
       "<strong>#{@cached_label_due_date}</strong>: #{format_date(issue.due_date)}<br />" +
       "<strong>#{@cached_label_assigned_to}</strong>: #{issue.assigned_to}<br />" +
-      "<strong>#{@cached_label_priority}</strong>: #{issue.priority.name}"
+      "<strong>#{@cached_label_priority}</strong>: #{issue.priority.name}").html_safe
   end
     
   def render_issue_subject_with_tree(issue)
@@ -49,7 +49,7 @@ module IssuesHelper
     end
     s << '<div>' + content_tag('h3', h(issue.subject))
     s << '</div>' * (issue.ancestors.size + 1)
-    s
+    s.html_safe
   end
   
   def render_descendants_tree(issue)
@@ -64,7 +64,7 @@ module IssuesHelper
              :class => "issue issue-#{child.id} hascontextmenu #{level > 0 ? "idnt idnt-#{level}" : nil}")
     end
     s << '</form></table>'
-    s
+    s.html_safe
   end
   
   def render_custom_fields_rows(issue)
@@ -83,7 +83,7 @@ module IssuesHelper
       n += 1
     end
     s << "</tr>\n"
-    s
+    s.html_safe
   end
   
   def sidebar_queries
@@ -240,22 +240,22 @@ module IssuesHelper
     case in_or_out
     when :in
       if gantt.zoom < 4
-        link_to_remote(l(:text_zoom_in) + image_tag('zoom_in.png', img_attributes.merge(:alt => l(:text_zoom_in))),
+        link_to_remote(l(:text_zoom_in).html_safe + image_tag('zoom_in.png', img_attributes.merge(:alt => l(:text_zoom_in))).html_safe,
                        {:url => gantt.params.merge(:zoom => (gantt.zoom+1)), :update => 'content'},
                        {:href => url_for(gantt.params.merge(:zoom => (gantt.zoom+1)))})
       else
-        l(:text_zoom_in) +
-          image_tag('zoom_in_g.png', img_attributes.merge(:alt => l(:text_zoom_in)))
+        (l(:text_zoom_in).html_safe +
+          image_tag('zoom_in_g.png', img_attributes.merge(:alt => l(:text_zoom_in).html_safe)))
       end
       
     when :out
       if gantt.zoom > 1
-        link_to_remote(l(:text_zoom_out) + image_tag('zoom_out.png', img_attributes.merge(:alt => l(:text_zoom_out))),
+        link_to_remote(l(:text_zoom_out).html_safe + image_tag('zoom_out.png', img_attributes.merge(:alt => l(:text_zoom_out))).html_safe,
                        {:url => gantt.params.merge(:zoom => (gantt.zoom-1)), :update => 'content'},
                        {:href => url_for(gantt.params.merge(:zoom => (gantt.zoom-1)))})
       else
-        l(:text_zoom_out) +
-          image_tag('zoom_out_g.png', img_attributes.merge(:alt => l(:text_zoom_out)))
+        (l(:text_zoom_out).html_safe +
+          image_tag('zoom_out_g.png', img_attributes.merge(:alt => l(:text_zoom_out).html_safe)))
       end
     end
   end

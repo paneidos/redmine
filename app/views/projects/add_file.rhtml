@@ -1,6 +1,6 @@
 <h2><%=l(:label_attachment_new)%></h2>
 
-<%= error_messages_for 'attachment' %>
+<%= error_messages_for %> <!-- FIXME: missing 'attachment' -->
 <div class="box">
 <% form_tag({ :action => 'add_file', :id => @project }, :multipart => true, :class => "tabular") do %>
 

@@ -3,7 +3,7 @@
 <%= call_hook(:view_my_account_contextual, :user => @user)%>
 </div>
 <h2><%=l(:label_my_account)%></h2>
-<%= error_messages_for 'user' %>
+<%= error_messages_for %> <!-- FIXME: missing 'user' -->
 
 <% form_for :user, @user, :url => { :action => "account" }, 
                           :builder => TabularFormBuilder, 

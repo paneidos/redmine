@@ -38,7 +38,7 @@
 </p>
 <% end %>
 
-<%= error_messages_for 'query' %>
+<%= error_messages_for %> <!-- FIXME: missing 'query' -->
 <% if @query.valid? %>
 <%= render :partial => 'common/calendar', :locals => {:calendar => @calendar} %>
 

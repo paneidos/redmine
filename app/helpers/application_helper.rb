@@ -185,6 +185,7 @@ module ApplicationHelper
   end
   
   # Renders the project quick-jump box
+  # FIXME: should be a partial
   def render_project_jump_box
     # Retrieve them now to avoid a COUNT query
     projects = User.current.projects.all
@@ -196,7 +197,7 @@ module ApplicationHelper
         { :value => url_for(:controller => 'projects', :action => 'show', :id => p, :jump => current_menu_item) }
       end
       s << '</select>'
-      s
+      s.html_safe
     end
   end
   
@@ -213,7 +214,7 @@ module ApplicationHelper
       tag_options.merge!(yield(project)) if block_given?
       s << content_tag('option', name_prefix + h(project), tag_options)
     end
-    s
+    s.html_safe
   end
   
   # Yields the given block for each project with its level in the tree
@@ -249,7 +250,7 @@ module ApplicationHelper
       end
       s << ("</li></ul>\n" * ancestors.size)
     end
-    s
+    s.html_safe
   end
   
   def principals_check_box_tags(name, principals)
@@ -257,7 +258,7 @@ module ApplicationHelper
     principals.sort.each do |principal|
       s << "<label>#{ check_box_tag name, principal.id, false } #{h principal}</label>\n"
     end
-    s 
+    s.html_safe
   end
 
   # Truncates and returns the string as a single line
@@ -276,11 +277,11 @@ module ApplicationHelper
   end
 
   def html_hours(text)
-    text.gsub(%r{(\d+)\.(\d+)}, '<span class="hours hours-int">\1</span><span class="hours hours-dec">.\2</span>')
+    text.gsub(%r{(\d+)\.(\d+)}, '<span class="hours hours-int">\1</span><span class="hours hours-dec">.\2</span>').html_safe
   end
 
   def authoring(created, author, options={})
-    l(options[:label] || :label_added_time_by, :author => link_to_user(author), :age => time_tag(created))
+    l(options[:label] || :label_added_time_by, :author => link_to_user(author), :age => time_tag(created)).html_safe
   end
   
   def time_tag(time)
@@ -677,7 +678,7 @@ module ApplicationHelper
 
   def check_all_links(form_name)
     link_to_function(l(:button_check_all), "checkAll('#{form_name}', true)") +
-    " | " +
+    " | ".html_safe +
     link_to_function(l(:button_uncheck_all), "checkAll('#{form_name}', false)")
   end
 
@@ -690,11 +691,11 @@ module ApplicationHelper
     legend = options[:legend] || ''
     content_tag('table',
       content_tag('tr',
-        (pcts[0] > 0 ? content_tag('td', '', :style => "width: #{pcts[0]}%;", :class => 'closed') : '') +
-        (pcts[1] > 0 ? content_tag('td', '', :style => "width: #{pcts[1]}%;", :class => 'done') : '') +
-        (pcts[2] > 0 ? content_tag('td', '', :style => "width: #{pcts[2]}%;", :class => 'todo') : '')
-      ), :class => 'progress', :style => "width: #{width};") +
-      content_tag('p', legend, :class => 'pourcent')
+        (pcts[0] > 0 ? content_tag('td', '', :style => "width: #{pcts[0]}%;", :class => 'closed') : ''.html_safe) +
+        (pcts[1] > 0 ? content_tag('td', '', :style => "width: #{pcts[1]}%;", :class => 'done') : ''.html_safe) +
+        (pcts[2] > 0 ? content_tag('td', '', :style => "width: #{pcts[2]}%;", :class => 'todo') : ''.html_safe)
+      ), :class => 'progress', :style => "width: #{width};").html_safe +
+      content_tag('p', legend, :class => 'pourcent').html_safe
   end
   
   def checked_image(checked=true)

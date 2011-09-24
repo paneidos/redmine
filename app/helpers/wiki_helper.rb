@@ -64,6 +64,6 @@ module WikiHelper
         words_del = 0
       end
     end
-    simple_format_without_paragraph(words.join(' '))
+    simple_format_without_paragraph(words.join(' ')).html_safe
   end
 end

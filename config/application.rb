@@ -1,11 +1,9 @@
 require File.expand_path('../boot', __FILE__)
-
 require 'rails/all'
 
 # If you have a Gemfile, require the gems listed there, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(:default, Rails.env) if defined?(Bundler)
-
 
 module Redmine
   class Application < Rails::Application
@@ -14,11 +12,10 @@ module Redmine
     # -- all .rb files in that directory are automatically loaded.
     config.session_store :cookie_store, :key => "_redmine_session"
     config.secret_token = "some secret phrase of at least 30 characters"
-    
 
     # Add additional load paths for your own custom dirs
     # config.load_paths += %W( #{config.root}/extras )
-    config.load_paths += %W( #{Rails.root}/app/sweepers )
+    config.autoload_paths += %W( #{Rails.root}/app/sweepers lib )
 
     # Only load the plugins named here, in the order given (default is alphabetical).
     # :all can be used as a placeholder for all plugins not explicitly named

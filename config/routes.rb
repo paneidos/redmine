@@ -159,11 +159,10 @@ ActionController::Routing::Routes.draw do |map|
       news_views.connect 'news/:id', :action => 'show'
       news_views.connect 'news/:id/edit', :action => 'edit'
     end
-    news_routes.with_options do |news_actions|
-      news_actions.connect 'projects/:project_id/news', :action => 'new'
-      news_actions.connect 'news/:id/edit', :action => 'edit'
-      news_actions.connect 'news/:id/destroy', :action => 'destroy'
-    end
+
+    news_routes.connect 'projects/:project_id/news', :action => 'new'
+    news_routes.connect 'news/:id/edit', :action => 'edit'
+    news_routes.connect 'news/:id/destroy', :action => 'destroy'
   end
   
   map.connect 'projects/:id/members/new', :controller => 'members', :action => 'new'

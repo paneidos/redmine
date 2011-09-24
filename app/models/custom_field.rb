@@ -27,7 +27,7 @@ class CustomField < ActiveRecord::Base
   validates_inclusion_of :field_format, :in => Redmine::CustomFieldFormat.available_formats
   validate :validate_possible_values, :validate_default_value
   
-  before_validation :lock_fiels
+  before_validation :lock_fields
 
   def initialize(attributes = nil)
     super

@@ -18,6 +18,7 @@
 ENV["RAILS_ENV"] ||= "test"
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
+require 'shoulda'
 require 'mocks/open_id_authentication_mock'
 
 require 'object_daddy_helpers'
@@ -60,6 +61,16 @@ class ActiveSupport::TestCase
   def uploaded_test_file(name, mime)
     ActionController::TestUploadedFile.new(ActiveSupport::TestCase.fixture_path + "/files/#{name}", mime)
   end
+
+  # Mock out a file
+  def mock_file
+    file = 'a_file.png'
+    file.stubs(:size).returns(32)
+    file.stubs(:original_filename).returns('a_file.png')
+    file.stubs(:content_type).returns('image/png')
+    file.stubs(:read).returns(false)
+    file
+  end
   
   # Use a temporary directory for attachment related tests
   def set_tmp_attachments_directory
@@ -84,7 +95,7 @@ class ActiveSupport::TestCase
   
   # Returns the path to the test +vendor+ repository
   def self.repository_path(vendor)
-    File.join(Rails.root.gsub(%r{config\/\.\.}, ''), "/tmp/test/#{vendor.downcase}_repository")
+    File.expand_path("../../tmp/test/#{vendor.downcase}_repository", __FILE__)
   end
   
   # Returns true if the +vendor+ test repository is configured
