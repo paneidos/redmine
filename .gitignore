@@ -1,6 +1,10 @@
 .bundle
 Gemfile.lock
+
+/.project
+/.loadpath
 /config/additional_environment.rb
+/config/configuration.yml
 /config/database.yml
 /config/email.yml
 /config/initializers/session_store.rb
@@ -8,6 +12,8 @@ Gemfile.lock
 /db/*.db
 /db/*.sqlite3
 /files/*
+/lib/redmine/scm/adapters/mercurial/redminehelper.pyc
+/lib/redmine/scm/adapters/mercurial/redminehelper.pyo
 /log/*.log*
 /log/mongrel_debug
 /public/plugin_assets
