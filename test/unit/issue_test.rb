@@ -898,10 +898,10 @@ class IssueTest < ActiveSupport::TestCase
     # Validation skipping
     assert IssueRelation.new(:issue_from => Issue.find(8),
                              :issue_to   => Issue.find(2),
-                             :relation_type => IssueRelation::TYPE_RELATES).save(false)
+                             :relation_type => IssueRelation::TYPE_RELATES).save(:validate => false)
     assert IssueRelation.new(:issue_from => Issue.find(3),
                              :issue_to   => Issue.find(1),
-                             :relation_type => IssueRelation::TYPE_RELATES).save(false)
+                             :relation_type => IssueRelation::TYPE_RELATES).save(:validate => false)
 
     assert_equal [2, 3, 8], Issue.find(1).all_dependent_issues.collect(&:id).sort
   end
