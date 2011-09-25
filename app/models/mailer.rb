@@ -426,11 +426,13 @@ class Mailer < ActionMailer::Base
                   :layout => 'mailer.text.erb')
     else
       content_type "multipart/alternative"
-      part :content_type => "text/plain",
-           :body => render(:file => "#{method_name}.text.erb",
-                           :body => body, :layout => 'mailer.text.erb')
-      part :content_type => "text/html",
-           :body => render_message("#{method_name}.html.erb", body)
+      part :content_type => "text/plain" do |p|
+           p.body = render(:template => "#{method_name}",
+                           :layout => 'mailer.text.erb')
+      end
+      part :content_type => "text/html" do |p|
+           p.body = render("#{method_name}")
+      end
     end
   end
 
