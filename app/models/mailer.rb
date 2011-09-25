@@ -296,10 +296,8 @@ class Mailer < ActionMailer::Base
 
   def test(user)
     set_language_if_valid(user.language)
-    recipients user.mail
-    subject 'Redmine test'
-    body :url => url_for(:controller => 'welcome')
-    render_multipart('test', body)
+    @url = url_for(:controller => 'welcome')
+    rdm_render({:to => user.mail,  :subject => 'Redmine test'}, "test")
   end
 
   # Overrides default deliver! method to prevent from sending an email
