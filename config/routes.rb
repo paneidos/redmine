@@ -29,8 +29,6 @@ Redmine::Application.routes.draw do |map|
                    :controller => 'timelog', :action => 'bulk_update', :conditions => { :method => :post }
   map.time_entries_context_menu '/time_entries/context_menu',
                    :controller => 'context_menus', :action => 'time_entries'
-  # TODO: wasteful since this is also nested under issues, projects, and projects/issues
-  map.resources :time_entries, :controller => 'timelog'
 
   map.connect 'projects/:id/wiki', :controller => 'wikis', :action => 'edit', :conditions => {:method => :post}
   map.connect 'projects/:id/wiki/destroy', :controller => 'wikis', :action => 'destroy', :conditions => {:method => :get}
