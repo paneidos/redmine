@@ -436,6 +436,15 @@ class Mailer < ActionMailer::Base
     end
   end
 
+  def rdm_render(mail_hash, method_name)
+    mail(mail_hash) do |format|
+      format.text { render(:template => method_name)  }
+      if ! Setting.plain_text_mail?
+        format.html { render(:template => method_name) }
+      end
+    end
+  end
+
   # Makes partial rendering work with Rails 1.2 (retro-compatibility)
   def self.controller_path
     ''
