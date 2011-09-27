@@ -17,6 +17,15 @@
 
 require 'ar_condition'
 
+class BlackholeMailMessage < Mail::Message
+  def self.deliver
+    false
+  end
+end
+
+class AbortDeliveryError < StandardError
+end
+
 class Mailer < ActionMailer::Base
   layout 'mailer'
   helper :application
@@ -28,6 +37,18 @@ class Mailer < ActionMailer::Base
   include Redmine::I18n
 
   self.prepend_view_path "app/views/mailer"
+  
+  def abort_delivery
+    raise AbortDeliveryError
+  end
+
+  def process(*args)
+    begin
+      super *args
+    rescue AbortDeliveryError
+      self.message = BlackholeMailMessage
+    end
+  end
 
   def self.default_url_options
     h = Setting.host_name
@@ -347,10 +368,9 @@ class Mailer < ActionMailer::Base
     
     @author ||= User.current
     if @author.pref[:no_self_notified]
-      attributes[:bcc].delete(@author.mail) if attributes[:bcc]
+      attributes[:to].delete(@author.mail) if attributes[:to]
       attributes[:cc].delete(@author.mail) if attributes[:cc]
     end
-    
 
     if Setting.bcc_recipients?
       attributes[:bcc] = [attributes[:to], attributes[:cc]].flatten.compact.uniq
@@ -359,10 +379,10 @@ class Mailer < ActionMailer::Base
     end
     
     set_language_if_valid @initial_language
-    return if (attributes[:to].nil? || attributes[:to].empty?) &&
-              (attributes[:cc].nil? || attributes[:cc] .empty?) &&
-              (attributes[:bcc].nil? || attributes[:bcc].empty?)
-                    
+    abort_delivery if (attributes[:to].nil? || attributes[:to].empty?) &&
+                      (attributes[:cc].nil? || attributes[:cc] .empty?) &&
+                      (attributes[:bcc].nil? || attributes[:bcc].empty?)
+              
     # Set Message-Id and References
     if attributes[:message_id]
       attributes[:message_id] = self.class.message_id_for(attributes[:message_id])
