@@ -4,7 +4,12 @@ require 'rails/all'
 
 # If you have a Gemfile, require the gems listed there, including any gems
 # you've limited to :test, :development, or :production.
-Bundler.require(:default, Rails.env) if defined?(Bundler)
+if defined?(Bundler)
+  # If you precompile assets before deploying to production, use this line
+  # Bundler.require *Rails.groups(:assets => %w(development test))
+  # If you want your assets lazily compiled in production, use this line
+  Bundler.require(:default, :assets, Rails.env)
+end
 
 module Redmine
   class Application < Rails::Application
@@ -13,12 +18,16 @@ module Redmine
     # -- all .rb files in that directory are automatically loaded.
     config.session_store :cookie_store, :key => "_redmine_session"
     config.secret_token = "some secret phrase of at least 30 characters"
-
+    
+    # Enable the asset pipeline
+    config.assets.enabled = true
+    
+    # Version of your assets, change this if you want to expire all your assets
+    config.assets.version = '1.0'
+    
     # Add additional load paths for your own custom dirs
     config.autoload_paths += %W( #{Rails.root}/app/sweepers lib #{Rails.root} )
     
-    config.action_view.javascript_expansions[:defaults] = %w(prototype rails effects controls dragdrop)
-
     # Only load the plugins named here, in the order given (default is alphabetical).
     # :all can be used as a placeholder for all plugins not explicitly named
     # config.plugins = [ :exception_notification, :ssl_requirement, :all ]
