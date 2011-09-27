@@ -36,4 +36,7 @@ Redmine::Application.configure do
 
   # Print deprecation notices to the stderr
   config.active_support.deprecation = :stderr
+  
+  # This config option was shown in the episode but is actually not used, so don't bother adding it.
+  # config.assets.allow_debugging = true
 end
