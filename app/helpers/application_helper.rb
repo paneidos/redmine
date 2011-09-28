@@ -946,7 +946,7 @@ module ApplicationHelper
   end
 
   def robot_exclusion_tag
-    '<meta name="robots" content="noindex,follow,noarchive" />'
+    '<meta name="robots" content="noindex,follow,noarchive" />'.html_safe
   end
 
   # Returns true if arg is expected in the API response
