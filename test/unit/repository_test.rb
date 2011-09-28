@@ -108,10 +108,10 @@ class RepositoryTest < ActiveSupport::TestCase
     # 2 email notifications
     assert_equal 2, ActionMailer::Base.deliveries.size
     mail = ActionMailer::Base.deliveries.first
-    assert_kind_of TMail::Mail, mail
+    assert_kind_of Mail::Message, mail
     assert mail.subject.starts_with?(
         "[#{fixed_issue.project.name} - #{fixed_issue.tracker.name} ##{fixed_issue.id}]")
-    assert mail.body.include?(
+    assert mail.body.encoded.include?(
         "Status changed from #{old_status} to #{fixed_issue.status}")
 
     # ignoring commits referencing an issue of another project
