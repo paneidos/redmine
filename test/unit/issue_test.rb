@@ -60,11 +60,11 @@ class IssueTest < ActiveSupport::TestCase
     # Blank value
     issue.custom_field_values = { field.id => '' }
     assert !issue.save
-    assert_equal I18n.translate('activerecord.errors.messages.invalid'), issue.errors.on(:custom_values)
+    assert_equal I18n.translate('activerecord.errors.messages.invalid'), issue.errors[:custom_values].join(", ")
     # Invalid value
     issue.custom_field_values = { field.id => 'SQLServer' }
     assert !issue.save
-    assert_equal I18n.translate('activerecord.errors.messages.invalid'), issue.errors.on(:custom_values)
+    assert_equal I18n.translate('activerecord.errors.messages.invalid'), issue.errors[:custom_values].join(", ")
     # Valid value
     issue.custom_field_values = { field.id => 'PostgreSQL' }
     assert issue.save
