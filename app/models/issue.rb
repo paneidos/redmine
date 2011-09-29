@@ -69,7 +69,7 @@ class Issue < ActiveRecord::Base
 
   scope :recently_updated, :order => "#{Issue.table_name}.updated_on DESC"
   scope :with_limit, lambda { |limit| { :limit => limit} }
-  scope :on_active_project, :include => [:status, :project, :tracker],
+  scope :on_active_project, :joins => [:status, :project, :tracker],
                                   :conditions => ["#{Project.table_name}.status=#{Project::STATUS_ACTIVE}"]
 
   scope :without_version, lambda {
