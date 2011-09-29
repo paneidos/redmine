@@ -28,7 +28,7 @@ class CustomFieldTest < ActiveSupport::TestCase
   def test_regexp_validation
     field = IssueCustomField.new(:name => 'regexp', :field_format => 'text', :regexp => '[a-z0-9')
     assert !field.save
-    assert_equal I18n.t('activerecord.errors.messages.invalid'), field.errors.on(:regexp)
+    assert_equal I18n.t('activerecord.errors.messages.invalid'), field.errors[:regexp].join
 
     field.regexp = '[a-z0-9]'
     assert field.save
