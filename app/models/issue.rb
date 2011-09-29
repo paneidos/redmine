@@ -61,7 +61,7 @@ class Issue < ActiveRecord::Base
   validate :validate_issue
 
   scope :visible,
-               lambda {|*args| { :include => :project,
+               lambda {|*args| { :joins => :project,
                                           :conditions => Issue.visible_condition(args.shift || User.current, *args) } }
 
   scope :open,
