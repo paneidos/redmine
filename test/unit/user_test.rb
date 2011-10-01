@@ -54,7 +54,7 @@ class UserTest < ActiveSupport::TestCase
     u = User.new
     u.mail = ''
     assert !u.valid?
-    assert_equal I18n.translate('activerecord.errors.messages.blank'), u.errors.on(:mail)
+    assert_equal I18n.translate('activerecord.errors.messages.blank'), u.errors[:mail].join(",")
   end
 
   def test_create
