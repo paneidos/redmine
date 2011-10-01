@@ -142,7 +142,7 @@ module Redmine
           Redmine::Hook.call_hook(hook, default_context.merge(context))
         else
           default_context = {:controller => controller, :project => @project, :request => request}
-          Redmine::Hook.call_hook(hook, default_context.merge(context)).join(' ')
+          Redmine::Hook.call_hook(hook, default_context.merge(context)).join(' ').html_safe
         end
       end
     end
