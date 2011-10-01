@@ -99,7 +99,7 @@ class UserTest < ActiveSupport::TestCase
       u.login = 'NewUser'
       u.password, u.password_confirmation = "password", "password"
       assert !u.save
-      assert_equal I18n.translate('activerecord.errors.messages.taken'), u.errors.on(:login)
+      assert_equal I18n.translate('activerecord.errors.messages.taken'), u.errors[:login].join(",")
     end
   end
 
