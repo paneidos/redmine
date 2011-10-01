@@ -45,6 +45,12 @@ gem 'rails_autolink'
 gem 'rails_legacy_mapper'
 
 group :development do
+  # gem 'thin'
+  # gem 'autotest'
+  # gem 'autotest-growl'
+  # gem 'autotest-fsevent'
+  # gem 'mynyml-redgreen'
+  gem 'rails-dev-tweaks', '~> 0.5.1'
 end
 
 group :production do
@@ -53,6 +59,7 @@ end
 group :test do
   gem 'test-unit'
   # gem 'shoulda', '~> 2.10.3'
+  # gem 'shoulda', :git => 'http://github.com/redox/shoulda', :branch => 'rails3'
   gem 'shoulda'
   gem 'mocha'
   ## ruby script/rails plugin install git://github.com/awebneck/object_daddy.git
