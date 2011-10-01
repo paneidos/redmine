@@ -44,7 +44,7 @@
   <th class="line-num"><%= line.nb_line_left %></th>
   <th class="line-num"><%= line.nb_line_right %></th>
   <td class="line-code <%= line.type_diff %>">
-    <pre><%=to_utf8 line.html_line %></pre>
+    <pre><%=to_utf8 line.html_line.html_safe %></pre>
   </td>
 </tr>
 <% end -%>
