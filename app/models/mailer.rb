@@ -396,8 +396,10 @@ class Mailer < ActionMailer::Base
     self.class.raise_delivery_errors = true
     begin
       mail_without_default_settings(attributes) do |format|
-        format.text { render :file  => "#{method_name}.text.plain.rhtml", :layout => 'mailer.text.plain.rhtml' }
-        format.html { render :file => "#{method_name}.text.html.rhtml", :layout => 'mailer.text.html.rhtml' } if !Setting.plain_text_mail?
+        format.text { render(:template => method_name) }
+        if !Setting.plain_text_mail?
+          format.html { render(:template => method_name) }
+        end
       end
     rescue Exception => e
       if raise_errors
