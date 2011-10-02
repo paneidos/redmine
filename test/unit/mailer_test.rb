@@ -135,8 +135,8 @@ class MailerTest < ActiveSupport::TestCase
     Mailer.issue_add(issue).deliver
     mail = ActionMailer::Base.deliveries.last
     assert_not_nil mail
-    assert_equal 'bulk', mail.header_string('Precedence')
-    assert_equal 'auto-generated', mail.header_string('Auto-Submitted')
+    assert_equal 'bulk', mail.headers['Precedence']
+    assert_equal 'auto-generated', mail.headers['Auto-Submitted']
   end
 
   def test_plain_text_mail
