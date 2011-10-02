@@ -193,7 +193,7 @@ class MailerTest < ActiveSupport::TestCase
     Mailer.issue_add(issue).deliver
     mail = ActionMailer::Base.deliveries.last
     assert_not_nil mail
-    assert_equal Mailer.message_id_for(issue), mail.message_id
+    assert_equal Mailer.message_id_for(issue), "<" + mail.message_id + ">"
     assert_nil mail.references
   end
 
