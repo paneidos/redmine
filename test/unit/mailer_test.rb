@@ -44,7 +44,7 @@ class MailerTest < ActiveSupport::TestCase
     assert Mailer.issue_edit(journal).deliver
 
     mail = ActionMailer::Base.deliveries.last
-    assert_kind_of TMail::Mail, mail
+    assert_kind_of Mail::Message, mail
 
     assert_select_email do
       # link to the main ticket
@@ -74,7 +74,7 @@ class MailerTest < ActiveSupport::TestCase
     assert Mailer.issue_edit(journal).deliver
 
     mail = ActionMailer::Base.deliveries.last
-    assert_kind_of TMail::Mail, mail
+    assert_kind_of Mail::Message, mail
 
     assert_select_email do
       # link to the main ticket
@@ -107,7 +107,7 @@ class MailerTest < ActiveSupport::TestCase
     assert Mailer.issue_edit(journal).deliver
 
     mail = ActionMailer::Base.deliveries.last
-    assert_kind_of TMail::Mail, mail
+    assert_kind_of Mail::Message, mail
 
     assert_select_email do
       # link to the main ticket
