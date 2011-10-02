@@ -226,8 +226,8 @@ class MailerTest < ActiveSupport::TestCase
     Mailer.message_posted(message).deliver
     mail = ActionMailer::Base.deliveries.last
     assert_not_nil mail
-    assert_equal Mailer.message_id_for(message), mail.message_id
-    assert_equal Mailer.message_id_for(message.parent), mail.references.first.to_s
+    assert_equal Mailer.message_id_for(message), "<" + mail.message_id + ">"
+    assert_equal Mailer.message_id_for(message.parent), "<" + mail.references + ">"
     assert_select_email do
       # link to the reply
       assert_select "a[href=?]",
