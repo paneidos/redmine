@@ -211,7 +211,7 @@ class MailerTest < ActiveSupport::TestCase
     Mailer.message_posted(message).deliver
     mail = ActionMailer::Base.deliveries.last
     assert_not_nil mail
-    assert_equal Mailer.message_id_for(message), mail.message_id
+    assert_equal Mailer.message_id_for(message), "<" + mail.message_id + ">"
     assert_nil mail.references
     assert_select_email do
       # link to the message
