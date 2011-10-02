@@ -164,7 +164,7 @@ class MailerTest < ActiveSupport::TestCase
     end
     mail = ActionMailer::Base.deliveries.last
     assert_not_nil mail
-    assert_equal 'Redmine app', mail.from_addrs.first.name
+    assert_equal 'redmine@example.net', mail.from_addrs.first
   end
 
   def test_should_not_send_email_without_recipient
