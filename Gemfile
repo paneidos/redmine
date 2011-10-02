@@ -45,6 +45,7 @@ gem 'awesome_nested_set'
 # gem 'open_id_authentication'
 
 gem 'rails_autolink'
+gem 'rails_legacy_mapper'
 
 group :development do
 end
