@@ -234,14 +234,14 @@ module Redmine
       end
 
       def render_single_menu_node(item, caption, url, selected)
-        link_to(h(caption), url, item.html_options(:selected => selected))
+        link_to(caption, url, item.html_options(:selected => selected))
       end
 
       def render_unattached_menu_item(menu_item, project)
         raise MenuError, ":child_menus must be an array of MenuItems" unless menu_item.is_a? MenuItem
 
         if User.current.allowed_to?(menu_item.url, project)
-          link_to(h(menu_item.caption),
+          link_to(menu_item.caption,
                   menu_item.url,
                   menu_item.html_options)
         end
