@@ -1161,7 +1161,7 @@ class IssuesControllerTest < ActionController::TestCase
 
     mail = ActionMailer::Base.deliveries.last
     assert_kind_of Mail::Message, mail
-    assert mail.body.include?("Searchable field changed from 125 to New custom value")
+    assert mail.body.encoded.include?("Searchable field changed from 125 to New custom value")
   end
 
   def test_put_update_with_status_and_assignee_change
