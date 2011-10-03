@@ -163,21 +163,20 @@ Redmine::Application.routes.draw do |map|
     project.resources :news, :shallow => true
     project.resources :time_entries, :controller => 'timelog', :path_prefix => 'projects/:project_id'
 
+    project.wiki_start_page 'wiki/index', :controller => 'wiki', :action => 'index', :conditions => {:method => :get}
+    project.wiki_start_page 'wiki/date_index', :controller => 'wiki', :action => 'date_index', :conditions => {:method => :get}
+    project.wiki_start_page 'wiki/export', :controller => 'wiki', :action => 'export', :conditions => {:method => :get}
     project.wiki_start_page 'wiki/:id', :controller => 'wiki', :action => 'show', :conditions => {:method => :get}
-    project.wiki_index 'wiki/index', :controller => 'wiki', :action => 'index', :conditions => {:method => :get}
     project.wiki_diff 'wiki/:id/diff/:version', :controller => 'wiki', :action => 'diff', :version => nil
     project.wiki_diff 'wiki/:id/diff/:version/vs/:version_from', :controller => 'wiki', :action => 'diff'
     project.wiki_annotate 'wiki/:id/annotate/:version', :controller => 'wiki', :action => 'annotate'
+    project.wiki_rename 'wiki/:id/rename', :controller => 'wiki', :action => 'rename'
     project.resources :wiki, :except => [:new, :create], :member => {
       :rename => [:get, :post],
       :history => :get,
       :preview => :any,
       :protect => :post,
-      :add_attachment => :post,
-      :show => :get
-    }, :collection => {
-      :export => :get,
-      :date_index => :get
+      :add_attachment => :post
     }
 
   end
@@ -194,9 +193,7 @@ Redmine::Application.routes.draw do |map|
   end
 
   map.with_options :controller => 'activities', :action => 'index', :conditions => {:method => :get} do |activity|
-    activity.connect 'projects/:id/activity'
     activity.connect 'projects/:id/activity.:format'
-    activity.connect 'activity', :id => nil
     activity.connect 'activity.:format', :id => nil
   end
 
