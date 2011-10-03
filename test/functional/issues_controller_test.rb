@@ -736,7 +736,7 @@ class IssuesControllerTest < ActionController::TestCase
     assert_template 'new'
     issue = assigns(:issue)
     assert_not_nil issue
-    assert_equal I18n.translate('activerecord.errors.messages.invalid'), issue.errors.on(:custom_values)
+    assert_equal I18n.translate('activerecord.errors.messages.invalid'), issue.errors[:custom_values].join(",")
   end
 
   def test_post_create_with_watchers
