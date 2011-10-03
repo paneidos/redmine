@@ -1138,7 +1138,7 @@ class IssuesControllerTest < ActionController::TestCase
     mail = ActionMailer::Base.deliveries.last
     assert_kind_of TMail::Mail, mail
     assert mail.subject.starts_with?("[#{issue.project.name} - #{issue.tracker.name} ##{issue.id}]")
-    assert mail.body.include?("Subject changed from #{old_subject} to #{new_subject}")
+    assert mail.body.encoded.include?("Subject changed from #{old_subject} to #{new_subject}")
   end
 
   def test_put_update_with_custom_field_change
