@@ -31,7 +31,7 @@
 </div>
 <% end %>
 
-<% content_for :sidebar do %>
+<%= content_for :sidebar do %>
 <%= form_tag({}, :method => :get) do %>
 <h3><%= l(:label_roadmap) %></h3>
 <% @trackers.each do |tracker| %>
