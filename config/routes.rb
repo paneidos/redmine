@@ -41,6 +41,7 @@ Redmine::Application.routes.draw do |map|
       messages_views.connect 'boards/:board_id/topics/new', :action => 'new'
       messages_views.connect 'boards/:board_id/topics/:id', :action => 'show'
       messages_views.connect 'boards/:board_id/topics/:id/edit', :action => 'edit'
+      messages_views.connect 'boards/:board_id/topics/:id/quote', :action => 'quote'
     end
     messages_routes.with_options :conditions => {:method => :post} do |messages_actions|
       messages_actions.connect 'boards/:board_id/topics/new', :action => 'new'
