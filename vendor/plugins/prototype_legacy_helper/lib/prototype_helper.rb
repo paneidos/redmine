@@ -258,18 +258,19 @@ module PrototypeHelper
   # See FormHelper#form_for for additional semantics.
   def remote_form_for(record_or_name_or_array, *args, &proc)
     options = args.extract_options!
+    options[:html] ||= {} # reverse_merged! later, must not be null
 
     case record_or_name_or_array
     when String, Symbol
       object_name = record_or_name_or_array
     when Array
       object = record_or_name_or_array.last
-      object_name = ActionController::RecordIdentifier.singular_class_name(object)
+      object_name = ActionController::RecordIdentifier.dom_class(object)
       apply_form_for_options!(record_or_name_or_array, options)
       args.unshift object
     else
       object      = record_or_name_or_array
-      object_name = ActionController::RecordIdentifier.singular_class_name(record_or_name_or_array)
+      object_name = ActionController::RecordIdentifier.dom_class(record_or_name_or_array)
       apply_form_for_options!(object, options)
       args.unshift object
     end
