@@ -306,7 +306,8 @@ class MailHandler < ActionMailer::Base
       # no text/plain part found, assuming html-only email
       # strip html tags and remove doctype directive
       @plain_text_body = strip_tags(@email.body.to_s)
-      @plain_text_body.gsub! %r{^<!DOCTYPE .*$}, ''
+      text_body = @plain_text_body.gsub %r{^<!DOCTYPE .*$}, ''
+      @plain_text_body = text_body
     else
       @plain_text_body = plain_text_part.body.to_s
     end
