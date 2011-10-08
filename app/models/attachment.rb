@@ -84,12 +84,17 @@ class Attachment < ActiveRecord::Base
   # and computes its MD5 hash
   def files_to_final_location
     temp_file_size = @temp_file ? (@temp_file.respond_to?(:decoded) ? @temp_file.decoded.length : @temp_file.size) : 0
+    if @temp_file.kind_of?(Mail::Part)
+      tf = @temp_file.decoded
+    else
+      tf = @temp_file
+    end
     if temp_file_size > 0
       logger.debug("saving '#{self.diskfile}'")
       md5 = Digest::MD5.new
       File.open(diskfile, "wb") do |f|
         buffer = ""
-        while (buffer = @temp_file.read(8192))
+        while (buffer = tf.read(8192))
           f.write(buffer)
           md5.update(buffer)
         end
