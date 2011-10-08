@@ -60,7 +60,12 @@ class Attachment < ActiveRecord::Base
       @temp_file = incoming_file
       temp_file_size = @temp_file.respond_to?(:decoded) ? @temp_file.decoded.length : @temp_file.size
       if temp_file_size > 0
-        self.filename = sanitize_filename(@temp_file.original_filename)
+        puts @temp_file.class.to_s
+        if @temp_file.kind_of?(Mail::Part)
+          self.filename = sanitize_filename(@temp_file.filename)
+        else
+          self.filename = sanitize_filename(@temp_file.original_filename)
+        end
         self.disk_filename = Attachment.disk_filename(filename)
         self.content_type = @temp_file.content_type.to_s.chomp
         if content_type.blank?
