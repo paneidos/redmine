@@ -31,8 +31,8 @@
                    :title => l(:label_date_from_to, :start => format_date(@date_to), :end => format_date(@date_to + @days - 1))) unless @date_to >= Date.today %>
 </div>
 &nbsp;
-<% other_formats_links do |f| %>
-  <%= f.link_to 'Atom', :url => params.merge(:from => nil, :key => User.current.rss_key) %>
+<%= other_formats_links do |f| %>
+  <% f.link_to 'Atom', :url => params.merge(:from => nil, :key => User.current.rss_key) %>
 <% end %>
 
 <% content_for :header_tags do %>
