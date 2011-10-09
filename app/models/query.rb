@@ -556,12 +556,11 @@ class Query < ActiveRecord::Base
   def issues(options={})
     order_option = [group_by_sort_order, options[:order]].reject {|s| s.blank?}.join(',')
     order_option = nil if order_option.blank?
-
-    Issue.visible.find :all, :include => ([:status, :project] + (options[:include] || [])).uniq,
-                     :conditions => Query.merge_conditions(statement, options[:conditions]),
-                     :order => order_option,
-                     :limit  => options[:limit],
-                     :offset => options[:offset]
+    Issue.visible.all :include => ([:status, :project] + (options[:include] || [])).uniq,
+                      :conditions => ::Query.merge_conditions(statement, options[:conditions]),
+                      :order => order_option,
+                      :limit  => options[:limit],
+                      :offset => options[:offset]
   rescue ::ActiveRecord::StatementInvalid => e
     raise StatementInvalid.new(e.message)
   end
