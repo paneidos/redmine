@@ -354,17 +354,17 @@ class IssueTest < ActiveSupport::TestCase
                        :status_id => 1, :priority => IssuePriority.all.first,
                        :subject => 'Duplicates test', :description => 'Duplicates test')
     assert issue1.save
-    issue2 = issue1.clone
+    issue2 = Issue.new(issue1.attributes)
     assert issue2.save
-    issue3 = issue1.clone
+    issue3 = Issue.new(issue1.attributes)
     assert issue3.save
 
     # 2 is a dupe of 1
-    IssueRelation.create(:issue_from => issue2, :issue_to => issue1, :relation_type => IssueRelation::TYPE_DUPLICATES)
+    IssueRelation.create!(:issue_from => issue2, :issue_to => issue1, :relation_type => IssueRelation::TYPE_DUPLICATES)
     # And 3 is a dupe of 2
-    IssueRelation.create(:issue_from => issue3, :issue_to => issue2, :relation_type => IssueRelation::TYPE_DUPLICATES)
+    IssueRelation.create!(:issue_from => issue3, :issue_to => issue2, :relation_type => IssueRelation::TYPE_DUPLICATES)
     # And 3 is a dupe of 1 (circular duplicates)
-    IssueRelation.create(:issue_from => issue3, :issue_to => issue1, :relation_type => IssueRelation::TYPE_DUPLICATES)
+    IssueRelation.create!(:issue_from => issue3, :issue_to => issue1, :relation_type => IssueRelation::TYPE_DUPLICATES)
 
     assert issue1.reload.duplicates.include?(issue2)
 
@@ -383,11 +383,13 @@ class IssueTest < ActiveSupport::TestCase
                        :status_id => 1, :priority => IssuePriority.all.first,
                        :subject => 'Duplicates test', :description => 'Duplicates test')
     assert issue1.save
-    issue2 = issue1.clone
+    issue2 = Issue.new(issue1.attributes)
     assert issue2.save
 
     # 2 is a dupe of 1
-    IssueRelation.create(:issue_from => issue2, :issue_to => issue1, :relation_type => IssueRelation::TYPE_DUPLICATES)
+    IssueRelation.create!(:issue_from => issue2, :issue_to => issue1, :relation_type => IssueRelation::TYPE_DUPLICATES)
+    assert issue1.duplicates.include?(issue2)
+
     # 2 is a dup of 1 but 1 is not a duplicate of 2
     assert !issue2.reload.duplicates.include?(issue1)
 
