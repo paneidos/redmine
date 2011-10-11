@@ -396,8 +396,6 @@ class Issue < ActiveRecord::Base
 
   def init_journal(user, notes = "")
     @current_journal ||= Journal.new(:journalized => self, :user => user, :notes => notes)
-    @issue_before_change = self.clone
-    @issue_before_change.status = self.status
     @custom_values_before_change = {}
     self.custom_values.each {|c| @custom_values_before_change.store c.custom_field_id, c.value }
     # Make sure updated_on is updated when adding a note.
@@ -910,12 +908,10 @@ class Issue < ActiveRecord::Base
     if @current_journal
       # attributes changes
       (Issue.column_names - %w(id root_id lft rgt lock_version created_on updated_on)).each {|c|
-        before = @issue_before_change.send(c)
-        after = send(c)
-        next if before == after || (before.blank? && after.blank?)
+        next if !send("#{c}_changed?") || (send("#{c}_was").blank? && send(c).blank?)
         @current_journal.details << JournalDetail.new(:property => 'attr',
                                                       :prop_key => c,
-                                                      :old_value => @issue_before_change.send(c),
+                                                      :old_value => send("#{c}_was"),
                                                       :value => send(c))
       }
       # custom fields changes
