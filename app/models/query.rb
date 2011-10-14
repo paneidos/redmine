@@ -129,7 +129,7 @@ class Query < ActiveRecord::Base
 
   cattr_reader :operators_by_filter_type
 
-  after_initialize :is_project_nil
+  after_initialize :set_default_filters, :is_project_nil
 
   @@available_columns = [
     QueryColumn.new(:project, :sortable => "#{Project.table_name}.name", :groupable => true),
@@ -164,8 +164,7 @@ class Query < ActiveRecord::Base
   cattr_reader :subject, :created_on, :updated_on, :start_date,
                :due_date, :estimated_hours, :done_ratio
 
-  def initialize(attributes = nil)
-    super attributes
+  def set_default_filters
     self.filters ||= { 'status_id' => {:operator => "o", :values => [""]} }
   end
 
