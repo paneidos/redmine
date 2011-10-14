@@ -27,9 +27,9 @@ class CustomField < ActiveRecord::Base
 
   validate :validate_values
   before_validation :set_searchable
+  after_initialize :init_possible_values
 
-  def initialize(attributes = nil)
-    super
+  def init_possible_values
     self.possible_values ||= []
   end
 
