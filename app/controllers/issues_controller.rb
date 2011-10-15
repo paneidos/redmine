@@ -60,7 +60,7 @@ class IssuesController < ApplicationController
 
   verify :method => :post, :only => :create, :render => {:nothing => true, :status => :method_not_allowed }
   verify :method => :post, :only => :bulk_update, :render => {:nothing => true, :status => :method_not_allowed }
-  verify :method => :put, :only => :update, :render => {:nothing => true, :status => :method_not_allowed }
+  # verify :method => :put, :only => :update, :render => {:nothing => true, :status => :method_not_allowed }
 
   def index
     retrieve_query
