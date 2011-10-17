@@ -122,12 +122,12 @@ class Enumeration < ActiveRecord::Base
     new = (new == "1" ? true : false)
     return new == previous
   end
-  
-  private
-  
+
+private
   def check_integrity
     raise "Can't delete enumeration" if self.in_use?
   end
+
 end
 
 # Force load the subclasses in development mode

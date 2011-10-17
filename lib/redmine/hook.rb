@@ -17,7 +17,7 @@
 
 module Redmine
   module Hook
-    # include ActionController::UrlWriter
+    include Rails.application.routes.url_helpers
 
     @@listener_classes = []
     @@listeners = nil
@@ -94,7 +94,7 @@ module Redmine
       include ActionView::Helpers::UrlHelper
       include ActionView::Helpers::AssetTagHelper
       include ActionView::Helpers::TextHelper
-      # include ActionController::UrlWriter
+      include Rails.application.routes.url_helpers
       include ApplicationHelper
 
       # Default to creating links using only the path.  Subclasses can
@@ -142,7 +142,7 @@ module Redmine
           Redmine::Hook.call_hook(hook, default_context.merge(context))
         else
           default_context = {:controller => controller, :project => @project, :request => request}
-          Redmine::Hook.call_hook(hook, default_context.merge(context)).join(' ')
+          Redmine::Hook.call_hook(hook, default_context.merge(context)).join(' ').html_safe
         end
       end
     end

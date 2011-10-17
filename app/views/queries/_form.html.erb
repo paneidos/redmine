@@ -1,4 +1,4 @@
-<%= error_messages_for :query %>
+<%= error_messages_for 'query' %>
 <%= hidden_field_tag 'confirm', 1 %>
 
 <div class="box">
@@ -37,7 +37,8 @@
 <% end %>
 </fieldset>
 
-<% content_tag 'fieldset', :id => 'columns', :style => (query.has_default_columns? ? 'display:none;' : nil) do %>
+<%= content_tag 'fieldset', :id => 'columns',
+                :style => (query.has_default_columns? ? 'display:none;' : nil) do %>
 <legend><%= l(:field_column_names) %></legend>
 <%= render :partial => 'queries/columns', :locals => {:query => query}%>
 <% end %>

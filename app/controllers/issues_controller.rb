@@ -60,7 +60,7 @@ class IssuesController < ApplicationController
 
   verify :method => :post, :only => :create, :render => {:nothing => true, :status => :method_not_allowed }
   verify :method => :post, :only => :bulk_update, :render => {:nothing => true, :status => :method_not_allowed }
-  verify :method => :put, :only => :update, :render => {:nothing => true, :status => :method_not_allowed }
+  # verify :method => :put, :only => :update, :render => {:nothing => true, :status => :method_not_allowed }
 
   def index
     retrieve_query
@@ -134,7 +134,6 @@ class IssuesController < ApplicationController
   # Add a new issue
   # The new issue will be created from an existing one if copy_from parameter is given
   def new
-    @issue ||= Issue.new
     respond_to do |format|
       format.html { render :action => 'new', :layout => !request.xhr? }
       format.js { render :partial => 'attributes' }
@@ -307,8 +306,6 @@ private
       @issue = @project.issues.visible.find(params[:id])
     end
 
-    @issue.status_id = 1
-    @issue.priority = IssuePriority.all.first
     @issue.project = @project
     @issue.author = User.current
     # Tracker must be set before custom field values

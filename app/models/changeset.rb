@@ -91,6 +91,10 @@ class Changeset < ActiveRecord::Base
     self.user = repository.find_committer_user(self.committer)
   end
 
+  def scan_for_issues
+    scan_comment_for_issue_ids
+  end
+
   TIMELOG_RE = /
     (
     ((\d+)(h|hours?))((\d+)(m|min)?)?
@@ -295,9 +299,5 @@ class Changeset < ActiveRecord::Base
       str = txtar
     end
     str
-  end
-  
-  def scan_for_issues
-    scan_comment_for_issue_ids
   end
 end

@@ -24,8 +24,12 @@ class ApplicationController < ActionController::Base
   include Redmine::I18n
 
   layout 'base'
-  # exempt_from_layout 'builder', 'rsb'
 
+  protect_from_forgery
+  def handle_unverified_request
+    super
+    cookies.delete(:autologin)
+  end
   # Remove broken cookie after upgrade from 0.8.x (#4292)
   # See https://rails.lighthouseapp.com/projects/8994/tickets/3360
   # TODO: remove it when Rails is fixed
@@ -39,8 +43,7 @@ class ApplicationController < ActionController::Base
   end
 
   before_filter :user_setup, :check_if_login_required, :set_localization
-
-  protect_from_forgery
+  # filter_parameter_logging :password
 
   rescue_from ActionController::InvalidAuthenticityToken, :with => :invalid_authenticity_token
   rescue_from ::Unauthorized, :with => :deny_access
@@ -50,7 +53,7 @@ class ApplicationController < ActionController::Base
   helper Redmine::MenuManager::MenuHelper
 
   Redmine::Scm::Base.all.each do |scm|
-    require_dependency "#{scm.underscore}"
+    require_dependency "repository/#{scm.underscore}"
   end
 
   def user_setup
@@ -330,7 +333,8 @@ class ApplicationController < ActionController::Base
     @items.sort! {|x,y| y.event_datetime <=> x.event_datetime }
     @items = @items.slice(0, Setting.feeds_limit.to_i)
     @title = options[:title] || Setting.app_title
-    render :template => "common/feed.rss.builder", :layout => false, :content_type => 'application/atom+xml'
+    render :template => "common/feed.atom", :layout => false,
+           :content_type => 'application/atom+xml'
   end
 
   # TODO: remove in Redmine 1.4

@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class CommentObserver < ActiveRecord::Observer  
+class CommentObserver < ActiveRecord::Observer
   def after_create(comment)
     if comment.commented.is_a?(News) && Setting.notified_events.include?('news_comment_added')
       Mailer.news_comment_added(comment).deliver

@@ -40,7 +40,7 @@ class JournalsController < ApplicationController
                                   :limit => 25)
     end
     @title = (@project ? @project.name : Setting.app_title) + ": " + (@query.new_record? ? l(:label_changes_details) : @query.name)
-    render :template => 'journals/index', :layout => false, :content_type => 'application/atom+xml'
+    render :layout => false, :content_type => 'application/atom+xml'
   rescue ActiveRecord::RecordNotFound
     render_404
   end

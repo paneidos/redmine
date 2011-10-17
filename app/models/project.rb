@@ -86,9 +86,9 @@ class Project < ActiveRecord::Base
   scope :all_public, { :conditions => { :is_public => true } }
   scope :visible, lambda {|*args| {:conditions => Project.visible_condition(args.shift || User.current, *args) }}
   
-  def initialize(attributes = nil, options = {})
-    super(attributes, options)
-    return if !new_record?
+  def initialize(attributes = nil)
+    super
+
     initialized = (attributes || {}).stringify_keys
     if !initialized.key?('identifier') && Setting.sequential_project_identifiers?
       self.identifier = Project.next_identifier
@@ -103,7 +103,7 @@ class Project < ActiveRecord::Base
       self.trackers = Tracker.all
     end
   end
-  
+
   def identifier=(identifier)
     super unless identifier_frozen?
   end
@@ -673,7 +673,7 @@ class Project < ActiveRecord::Base
   def copy_wiki(project)
     # Check that the source project has a wiki first
     unless project.wiki.nil?
-      wiki = self.wiki || build_wiki
+      self.wiki ||= Wiki.new
       wiki.attributes = project.wiki.attributes.dup.except("id", "project_id")
       wiki_pages_map = {}
       project.wiki.pages.each do |page|
@@ -685,7 +685,7 @@ class Project < ActiveRecord::Base
         wiki.pages << new_wiki_page
         wiki_pages_map[page.id] = new_wiki_page
       end
-      wiki.save!
+      wiki.save
       # Reproduce page hierarchy
       project.wiki.pages.each do |page|
         if page.parent_id && wiki_pages_map[page.id]
@@ -872,7 +872,7 @@ class Project < ActiveRecord::Base
         self.time_entry_activities.active
     end
   end
-  
+
   # Archives subprojects recursively
   def archive!
     children.each do |subproject|

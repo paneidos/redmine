@@ -144,6 +144,78 @@ class IssuesControllerTest < ActionController::TestCase
     assert_equal({'tracker_id' => {:operator => '=', :values => ['1']}}, query.filters)
   end
 
+  def test_index_with_short_filters
+
+    to_test = {
+      'status_id' => {
+        'o' => { :op => 'o', :values => [''] },
+        'c' => { :op => 'c', :values => [''] },
+        '7' => { :op => '=', :values => ['7'] },
+        '7|3|4' => { :op => '=', :values => ['7', '3', '4'] },
+        '=7' => { :op => '=', :values => ['7'] },
+        '!3' => { :op => '!', :values => ['3'] },
+        '!7|3|4' => { :op => '!', :values => ['7', '3', '4'] }},
+      'subject' => {
+        'This is a subject' => { :op => '=', :values => ['This is a subject'] },
+        'o' => { :op => '=', :values => ['o'] },
+        '~This is part of a subject' => { :op => '~', :values => ['This is part of a subject'] },
+        '!~This is part of a subject' => { :op => '!~', :values => ['This is part of a subject'] }},
+      'tracker_id' => {
+        '3' => { :op => '=', :values => ['3'] },
+        '=3' => { :op => '=', :values => ['3'] }},
+      'start_date' => {
+        '2011-10-12' => { :op => '=', :values => ['2011-10-12'] },
+        '=2011-10-12' => { :op => '=', :values => ['2011-10-12'] },
+        '>=2011-10-12' => { :op => '>=', :values => ['2011-10-12'] },
+        '<=2011-10-12' => { :op => '<=', :values => ['2011-10-12'] },
+        '><2011-10-01|2011-10-30' => { :op => '><', :values => ['2011-10-01', '2011-10-30'] },
+        '<t+2' => { :op => '<t+', :values => ['2'] },
+        '>t+2' => { :op => '>t+', :values => ['2'] },
+        't+2' => { :op => 't+', :values => ['2'] },
+        't' => { :op => 't', :values => [''] },
+        'w' => { :op => 'w', :values => [''] },
+        '>t-2' => { :op => '>t-', :values => ['2'] },
+        '<t-2' => { :op => '<t-', :values => ['2'] },
+        't-2' => { :op => 't-', :values => ['2'] }},
+      'created_on' => {
+        '>=2011-10-12' => { :op => '>=', :values => ['2011-10-12'] },
+        '<t+2' => { :op => '=', :values => ['<t+2'] },
+        '>t+2' => { :op => '=', :values => ['>t+2'] },
+        't+2' => { :op => 't', :values => ['+2'] }},
+      'cf_1' => {
+        'c' => { :op => '=', :values => ['c'] },
+        '!c' => { :op => '!', :values => ['c'] },
+        '!*' => { :op => '!*', :values => [''] },
+        '*' => { :op => '*', :values => [''] }},
+      'estimated_hours' => {
+        '=13.4' => { :op => '=', :values => ['13.4'] },
+        '>=45' => { :op => '>=', :values => ['45'] },
+        '<=125' => { :op => '<=', :values => ['125'] },
+        '><10.5|20.5' => { :op => '><', :values => ['10.5', '20.5'] },
+        '!*' => { :op => '!*', :values => [''] },
+        '*' => { :op => '*', :values => [''] }}
+    }
+
+    default_filter = { 'status_id' => {:operator => 'o', :values => [''] }}
+
+    to_test.each do |field, expression_and_expected|
+      expression_and_expected.each do |filter_expression, expected|
+
+        get :index, :set_filter => 1, field => filter_expression
+
+        assert_response :success
+        assert_template 'index'
+        assert_not_nil assigns(:issues)
+
+        query = assigns(:query)
+        assert_not_nil query
+        assert query.has_filter?(field)
+        assert_equal(default_filter.merge({field => {:operator => expected[:op], :values => expected[:values]}}), query.filters)
+      end
+    end
+
+  end
+
   def test_index_with_project_and_empty_filters
     get :index, :project_id => 1, :set_filter => 1, :fields => ['']
     assert_response :success
@@ -285,6 +357,27 @@ class IssuesControllerTest < ActionController::TestCase
                                     :parent => { :tag => 'select', :attributes => { :id => "selected_columns" } }
   end
 
+  def test_index_without_project_should_implicitly_add_project_column_to_default_columns
+    Setting.issue_list_default_columns = ['tracker', 'subject', 'assigned_to']
+    get :index, :set_filter => 1
+
+    # query should use specified columns
+    query = assigns(:query)
+    assert_kind_of Query, query
+    assert_equal [:project, :tracker, :subject, :assigned_to], query.columns.map(&:name)
+  end
+
+  def test_index_without_project_and_explicit_default_columns_should_not_add_project_column
+    Setting.issue_list_default_columns = ['tracker', 'subject', 'assigned_to']
+    columns = ['tracker', 'subject', 'assigned_to']
+    get :index, :set_filter => 1, :c => columns
+
+    # query should use specified columns
+    query = assigns(:query)
+    assert_kind_of Query, query
+    assert_equal columns.map(&:to_sym), query.columns.map(&:name)
+  end
+
   def test_index_with_custom_field_column
     columns = %w(tracker subject cf_2)
     get :index, :set_filter => 1, :c => columns
@@ -308,7 +401,7 @@ class IssuesControllerTest < ActionController::TestCase
 
   def test_index_send_nothing_if_query_is_invalid
     get :index, :f => ['start_date'], :op => {:start_date => '='}, :format => 'csv'
-    assert @response.content_type.include?('text/csv')
+    assert_equal 'text/csv', @response.content_type
     assert @response.body.blank?
   end
 

@@ -53,8 +53,8 @@ class RoleTest < ActiveSupport::TestCase
   def test_name
     I18n.locale = 'fr'
     assert_equal 'Manager', Role.find(1).name
-    assert_equal 'Anonymous', Role.anonymous.name
-    assert_equal 'Non member', Role.non_member.name
+    assert_equal 'Anonyme', Role.anonymous.name
+    assert_equal 'Non membre', Role.non_member.name
   end
 
   context "#anonymous" do

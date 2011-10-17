@@ -267,7 +267,7 @@ RAW
       'commit:abcd' => changeset_link,
      }
     @project = Project.find(3)
-    r = Git.create!(:project => @project, :url => '/tmp/test/git')
+    r = Repository::Git.create!(:project => @project, :url => '/tmp/test/git')
     assert r
     c = Changeset.new(:repository => r,
                       :committed_on => Time.now,
@@ -292,7 +292,7 @@ RAW
       'commit:20080308225258-98289-abcd456efg.gz' => changeset_link,
      }
     @project = Project.find(3)
-    r = Darcs.create!(
+    r = Repository::Darcs.create!(
             :project => @project, :url => '/tmp/test/darcs',
             :log_encoding => 'UTF-8')
     assert r
@@ -327,7 +327,7 @@ RAW
       'commit:abcd' => changeset_link_commit,
      }
     @project = Project.find(3)
-    r = Mercurial.create!(:project => @project, :url => '/tmp/test')
+    r = Repository::Mercurial.create!(:project => @project, :url => '/tmp/test')
     assert r
     c = Changeset.new(:repository => r,
                       :committed_on => Time.now,
@@ -373,6 +373,26 @@ RAW
     }
     @project = Project.find(1)
     to_test.each { |text, result| assert_equal "<p>#{result}</p>", textilizable(text) }
+  end
+
+  def test_wiki_links_within_local_file_generation_context
+
+    to_test = {
+      # link to a page
+      '[[CookBook documentation]]' => '<a href="CookBook_documentation.html" class="wiki-page">CookBook documentation</a>',
+      '[[CookBook documentation|documentation]]' => '<a href="CookBook_documentation.html" class="wiki-page">documentation</a>',
+      '[[CookBook documentation#One-section]]' => '<a href="CookBook_documentation.html#One-section" class="wiki-page">CookBook documentation</a>',
+      '[[CookBook documentation#One-section|documentation]]' => '<a href="CookBook_documentation.html#One-section" class="wiki-page">documentation</a>',
+      # page that doesn't exist
+      '[[Unknown page]]' => '<a href="Unknown_page.html" class="wiki-page new">Unknown page</a>',
+      '[[Unknown page|404]]' => '<a href="Unknown_page.html" class="wiki-page new">404</a>',
+      '[[Unknown page#anchor]]' => '<a href="Unknown_page.html#anchor" class="wiki-page new">Unknown page</a>',
+      '[[Unknown page#anchor|404]]' => '<a href="Unknown_page.html#anchor" class="wiki-page new">404</a>',
+    }
+
+    @project = Project.find(1)
+
+    to_test.each { |text, result| assert_equal "<p>#{result}</p>", textilizable(text, :wiki_links => :local) }
   end
 
   def test_html_tags
@@ -479,7 +499,7 @@ EXPECTED
 RAW
 
     expected = <<-EXPECTED
-<pre><code class="ruby syntaxhl"><span class=\"CodeRay\"><span class="no">1</span> <span class="c"># Some ruby code here</span></span>
+<pre><code class="ruby syntaxhl"><span class=\"CodeRay\"><span class="line-numbers">1</span><span class="comment"># Some ruby code here</span></span>
 </code></pre>
 EXPECTED
 
@@ -531,6 +551,72 @@ EXPECTED
     expected = %|<a name="Some-heading"></a>\n<h1 >Some heading<a href="#Some-heading" class="wiki-anchor">&para;</a></h1>|
 
     assert_equal expected, textilizable(raw)
+  end
+
+  def test_headings_with_special_chars
+    # This test makes sure that the generated anchor names match the expected
+    # ones even if the heading text contains unconventional characters
+    raw = 'h1. Some heading related to version 0.5'
+    anchor = sanitize_anchor_name("Some-heading-related-to-version-0.5")
+    expected = %|<a name="#{anchor}"></a>\n<h1 >Some heading related to version 0.5<a href="##{anchor}" class="wiki-anchor">&para;</a></h1>|
+
+    assert_equal expected, textilizable(raw)
+  end
+
+  def test_wiki_links_within_wiki_page_context
+
+    page = WikiPage.find_by_title('Another_page' )
+
+    to_test = {
+      # link to another page
+      '[[CookBook documentation]]' => '<a href="/projects/ecookbook/wiki/CookBook_documentation" class="wiki-page">CookBook documentation</a>',
+      '[[CookBook documentation|documentation]]' => '<a href="/projects/ecookbook/wiki/CookBook_documentation" class="wiki-page">documentation</a>',
+      '[[CookBook documentation#One-section]]' => '<a href="/projects/ecookbook/wiki/CookBook_documentation#One-section" class="wiki-page">CookBook documentation</a>',
+      '[[CookBook documentation#One-section|documentation]]' => '<a href="/projects/ecookbook/wiki/CookBook_documentation#One-section" class="wiki-page">documentation</a>',
+      # link to the current page
+      '[[Another page]]' => '<a href="/projects/ecookbook/wiki/Another_page" class="wiki-page">Another page</a>',
+      '[[Another page|Page]]' => '<a href="/projects/ecookbook/wiki/Another_page" class="wiki-page">Page</a>',
+      '[[Another page#anchor]]' => '<a href="#anchor" class="wiki-page">Another page</a>',
+      '[[Another page#anchor|Page]]' => '<a href="#anchor" class="wiki-page">Page</a>',
+      # page that doesn't exist
+      '[[Unknown page]]' => '<a href="/projects/ecookbook/wiki/Unknown_page" class="wiki-page new">Unknown page</a>',
+      '[[Unknown page|404]]' => '<a href="/projects/ecookbook/wiki/Unknown_page" class="wiki-page new">404</a>',
+      '[[Unknown page#anchor]]' => '<a href="/projects/ecookbook/wiki/Unknown_page#anchor" class="wiki-page new">Unknown page</a>',
+      '[[Unknown page#anchor|404]]' => '<a href="/projects/ecookbook/wiki/Unknown_page#anchor" class="wiki-page new">404</a>',
+    }
+
+    @project = Project.find(1)
+
+    to_test.each { |text, result| assert_equal "<p>#{result}</p>", textilizable(WikiContent.generate!( :text => text, :page => page ), :text) }
+  end
+
+  def test_wiki_links_anchor_option_should_prepend_page_title_to_href
+
+    to_test = {
+      # link to a page
+      '[[CookBook documentation]]' => '<a href="#CookBook_documentation" class="wiki-page">CookBook documentation</a>',
+      '[[CookBook documentation|documentation]]' => '<a href="#CookBook_documentation" class="wiki-page">documentation</a>',
+      '[[CookBook documentation#One-section]]' => '<a href="#CookBook_documentation_One-section" class="wiki-page">CookBook documentation</a>',
+      '[[CookBook documentation#One-section|documentation]]' => '<a href="#CookBook_documentation_One-section" class="wiki-page">documentation</a>',
+      # page that doesn't exist
+      '[[Unknown page]]' => '<a href="#Unknown_page" class="wiki-page new">Unknown page</a>',
+      '[[Unknown page|404]]' => '<a href="#Unknown_page" class="wiki-page new">404</a>',
+      '[[Unknown page#anchor]]' => '<a href="#Unknown_page_anchor" class="wiki-page new">Unknown page</a>',
+      '[[Unknown page#anchor|404]]' => '<a href="#Unknown_page_anchor" class="wiki-page new">404</a>',
+    }
+
+    @project = Project.find(1)
+
+    to_test.each { |text, result| assert_equal "<p>#{result}</p>", textilizable(text, :wiki_links => :anchor) }
+  end
+
+  def test_headings_in_wiki_single_page_export_should_be_prepended_with_page_title
+    page = WikiPage.generate!( :title => 'Page Title' )
+    content = WikiContent.generate!( :text => 'h1. Some heading', :page => page )
+
+    expected = %|<a name="Page_Title_Some-heading"></a>\n<h1 >Some heading<a href="#Page_Title_Some-heading" class="wiki-anchor">&para;</a></h1>|
+
+    assert_equal expected, textilizable(content, :text, :wiki_links => :anchor )
   end
 
   def test_table_of_content

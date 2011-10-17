@@ -1,4 +1,3 @@
-# encoding: utf-8
 module CalendarsHelper
   def link_to_previous_month(year, month, options={})
     target_year, target_month = if month == 1

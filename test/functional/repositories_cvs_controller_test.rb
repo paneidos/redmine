@@ -40,7 +40,7 @@ class RepositoriesCvsControllerTest < ActionController::TestCase
     User.current = nil
 
     @project = Project.find(PRJ_ID)
-    @repository  = Cvs.create(:project      => Project.find(PRJ_ID),
+    @repository  = Repository::Cvs.create(:project      => Project.find(PRJ_ID),
                                           :root_url     => REPOSITORY_PATH,
                                           :url          => MODULE_NAME,
                                           :log_encoding => 'UTF-8')
@@ -259,7 +259,7 @@ class RepositoriesCvsControllerTest < ActionController::TestCase
       @project.reload
       assert_nil @project.repository
 
-      @repository  = Cvs.create(
+      @repository  = Repository::Cvs.create(
                               :project      => Project.find(PRJ_ID),
                               :root_url     => "/invalid",
                               :url          => MODULE_NAME,

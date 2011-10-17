@@ -37,7 +37,7 @@ class RepositoriesSubversionControllerTest < ActionController::TestCase
     User.current = nil
 
     @project = Project.find(PRJ_ID)
-    @repository = Subversion.create(:project => @project,
+    @repository = Repository::Subversion.create(:project => @project,
                :url => self.class.subversion_repository_url)
     assert @repository
   end
@@ -359,7 +359,7 @@ class RepositoriesSubversionControllerTest < ActionController::TestCase
       @project.reload
       assert_nil @project.repository
 
-      @repository = Subversion.create(
+      @repository = Repository::Subversion.create(
                        :project => @project,
                        :url     => "file:///invalid")
       assert @repository

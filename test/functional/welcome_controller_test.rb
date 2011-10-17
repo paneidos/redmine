@@ -44,21 +44,21 @@ class WelcomeControllerTest < ActionController::TestCase
     Setting.default_language = 'en'
     @request.env['HTTP_ACCEPT_LANGUAGE'] = 'fr,fr-fr;q=0.8,en-us;q=0.5,en;q=0.3'
     get :index
-    assert_equal :en, @controller.current_language
+    assert_equal :fr, @controller.current_language
   end
 
-  # def test_browser_language_alternate
-  #   Setting.default_language = 'en'
-  #   @request.env['HTTP_ACCEPT_LANGUAGE'] = 'zh-TW'
-  #   get :index
-  #   assert_equal :"zh-TW", @controller.current_language
-  # end
+  def test_browser_language_alternate
+    Setting.default_language = 'en'
+    @request.env['HTTP_ACCEPT_LANGUAGE'] = 'zh-TW'
+    get :index
+    assert_equal :"zh-TW", @controller.current_language
+  end
 
   def test_browser_language_alternate_not_valid
     Setting.default_language = 'en'
     @request.env['HTTP_ACCEPT_LANGUAGE'] = 'fr-CA'
     get :index
-    assert_equal :en, @controller.current_language
+    assert_equal :fr, @controller.current_language
   end
 
   def test_robots

@@ -34,7 +34,7 @@ class RepositoriesBazaarControllerTest < ActionController::TestCase
     @response   = ActionController::TestResponse.new
     User.current = nil
     @project = Project.find(PRJ_ID)
-    @repository = Bazaar.create(
+    @repository = Repository::Bazaar.create(
                     :project      => @project,
                     :url          => REPOSITORY_PATH,
                     :log_encoding => 'UTF-8')
@@ -172,7 +172,7 @@ class RepositoriesBazaarControllerTest < ActionController::TestCase
       @project.reload
       assert_nil @project.repository
 
-      @repository = Bazaar.create(
+      @repository = Repository::Bazaar.create(
                     :project      => @project,
                     :url          => "/invalid",
                     :log_encoding => 'UTF-8')

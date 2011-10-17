@@ -19,8 +19,8 @@ require File.expand_path('../../test_helper', __FILE__)
 
 class MailerTest < ActiveSupport::TestCase
   include Redmine::I18n
-
   include ActionDispatch::Assertions::SelectorAssertions
+  
   fixtures :projects, :enabled_modules, :issues, :users, :members,
            :member_roles, :roles, :documents, :attachments, :news,
            :tokens, :journals, :journal_details, :changesets, :trackers,
@@ -42,10 +42,10 @@ class MailerTest < ActiveSupport::TestCase
 
     journal = Journal.find(2)
     assert Mailer.issue_edit(journal).deliver
-    
+
     mail = ActionMailer::Base.deliveries.last
     assert_kind_of Mail::Message, mail
-    
+
     assert_select_email do
       # link to the main ticket
       assert_select "a[href=?]",
@@ -72,7 +72,7 @@ class MailerTest < ActiveSupport::TestCase
 
     journal = Journal.find(2)
     assert Mailer.issue_edit(journal).deliver
-    
+
     mail = ActionMailer::Base.deliveries.last
     assert_kind_of Mail::Message, mail
 
@@ -105,7 +105,7 @@ class MailerTest < ActiveSupport::TestCase
 
     journal = Journal.find(2)
     assert Mailer.issue_edit(journal).deliver
-    
+
     mail = ActionMailer::Base.deliveries.last
     assert_kind_of Mail::Message, mail
 
@@ -451,7 +451,7 @@ class MailerTest < ActiveSupport::TestCase
     Mailer.account_activated(user).deliver
     mail = ActionMailer::Base.deliveries.last
     assert mail.body.encoded.include?('Votre compte')
-    
+
     assert_equal :it, current_language
   end
 

@@ -26,17 +26,17 @@ class MemberRole < ActiveRecord::Base
 
   validates_presence_of :role
   validate :validate_role_membership
-  
+
+  def validate_role_membership
+    errors.add :role_id, :invalid if role && !role.member?
+  end
+
   def inherited?
     !inherited_from.nil?
   end
 
   private
 
-  def validate_role_membership
-    errors.add :role_id, :invalid if role && !role.member?
-  end
-  
   def remove_member_if_empty
     if member.roles.empty?
       member.destroy

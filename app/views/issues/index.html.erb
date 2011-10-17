@@ -6,7 +6,7 @@
 </div>
 
 <h2><%= @query.new_record? ? l(:label_issue_plural) : h(@query.name) %></h2>
-<% html_title(@query.new_record? ? l(:label_issue_plural) : h(@query.name)) %>
+<% html_title(@query.new_record? ? l(:label_issue_plural) : @query.name) %>
 
 <%= form_tag({ :controller => 'issues', :action => 'index', :project_id => @project }, :method => :get, :id => 'query_form') do %>
     <%= hidden_field_tag 'set_filter', '1' %>
@@ -35,28 +35,38 @@
     </div>
     <p class="buttons hide-when-print">
 
-    <%= link_to_function l(:button_apply), 'submit_query_form("query_form")', :class => 'icon icon-checked' %>
-    <%= link_to l(:button_clear), { :set_filter => 1, :project_id => @project }, :class => 'icon icon-reload'  %>
+    <%= link_to l(:button_apply), { :set_filter => 1 }, {
+                         :remote => true,
+                         :before => 'selectAllOptions("selected_columns");',
+                         :update => "content",
+                         :complete => "apply_filters_observer()",
+                         :with => "Form.serialize('query_form')"
+                       }, :class => 'icon icon-checked' %>
+    <%= link_to l(:button_clear), { :set_filter => 1, :project_id => @project }, {
+                         :remote => true,
+                         :method => :get,
+                         :update => "content",
+                       }, :class => 'icon icon-reload'  %>
+
     <% if @query.new_record? && User.current.allowed_to?(:save_queries, @project, :global => true) %>
     <%= link_to_function l(:button_save), "$('query_form').action='#{ url_for :controller => 'queries', :action => 'new', :project_id => @project }'; submit_query_form('query_form')", :class => 'icon icon-save' %>
     <% end %>
     </p>
 <% end %>
 
-<!-- 'query' should be down there, this is a hack -->
-<%= error_messages_for :query %>
+<%= error_messages_for 'query' %>
 <% if @query.valid? %>
 <% if @issues.empty? %>
 <p class="nodata"><%= l(:label_no_data) %></p>
 <% else %>
 <%= render :partial => 'issues/list', :locals => {:issues => @issues, :query => @query} %>
-<p class="pagination"><%= pagination_links_full @issue_pages, @issue_count %></p>
+<p class="pagination"><%= raw pagination_links_full @issue_pages, @issue_count %></p>
 <% end %>
 
-<% other_formats_links do |f| %>
-  <%= f.link_to 'Atom', :url => params.merge(:key => User.current.rss_key) %>
-  <%= f.link_to 'CSV', :url => params %>
-  <%= f.link_to 'PDF', :url => params %>
+<%= other_formats_links do |f| %>
+  <% f.link_to 'Atom', :url => params.merge(:key => User.current.rss_key) %>
+  <% f.link_to 'CSV', :url => params %>
+  <% f.link_to 'PDF', :url => params %>
 <% end %>
 
 <% end %>

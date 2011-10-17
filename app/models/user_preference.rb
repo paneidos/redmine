@@ -20,11 +20,16 @@ class UserPreference < ActiveRecord::Base
   serialize :others
 
   attr_protected :others
-  
+
   before_save :reset
   
-  def after_initialize
-    reset
+  def initialize(attributes = nil)
+    super
+    self.others ||= {}
+  end
+
+  def reset
+    self.others ||= {}
   end
 
   def [](attr_name)
@@ -39,7 +44,7 @@ class UserPreference < ActiveRecord::Base
     if attribute_present? attr_name
       super
     else
-      h = (read_attribute(:others) || {}).dup
+      h = read_attribute(:others).dup || {}
       h.update(attr_name => value)
       write_attribute(:others, h)
       value
@@ -51,10 +56,4 @@ class UserPreference < ActiveRecord::Base
 
   def warn_on_leaving_unsaved; self[:warn_on_leaving_unsaved] || '1'; end
   def warn_on_leaving_unsaved=(value); self[:warn_on_leaving_unsaved]=value; end
-  
-  private
-  
-  def reset
-    self.others ||= {}
-  end
 end

@@ -9,7 +9,7 @@
     <th><%= l(:text_scm_command_version) %></th>
   </tr>
   <% Redmine::Scm::Base.all.collect do |choice| %>
-    <% scm_class = "#{choice}".constantize %>
+    <% scm_class = "Repository::#{choice}".constantize %>
     <% text, value = (choice.is_a?(Array) ? choice : [choice, choice]) %>
     <% setting = :enabled_scm %>
     <tr>

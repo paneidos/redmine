@@ -46,15 +46,26 @@ class Attachment < ActiveRecord::Base
   cattr_accessor :storage_path
   @@storage_path = Redmine::Configuration['attachments_storage_path'] || "#{Rails.root}/files"
 
-  after_destroy :delete_from_disk
   before_create :files_to_final_location
+  after_destroy :delete_from_disk
+
+  def validate_max_file_size
+    if self.filesize > Setting.attachment_max_size.to_i.kilobytes
+      errors.add(:base, :too_long, :count => Setting.attachment_max_size.to_i.kilobytes)
+    end
+  end
 
   def file=(incoming_file)
     unless incoming_file.nil?
       @temp_file = incoming_file
       temp_file_size = @temp_file.respond_to?(:decoded) ? @temp_file.decoded.length : @temp_file.size
       if temp_file_size > 0
-        self.filename = sanitize_filename(@temp_file.original_filename)
+        puts @temp_file.class.to_s
+        if @temp_file.kind_of?(Mail::Part)
+          self.filename = sanitize_filename(@temp_file.filename)
+        else
+          self.filename = sanitize_filename(@temp_file.original_filename)
+        end
         self.disk_filename = Attachment.disk_filename(filename)
         self.content_type = @temp_file.content_type.to_s.chomp
         if content_type.blank?
@@ -67,6 +78,38 @@ class Attachment < ActiveRecord::Base
 	
   def file
     nil
+  end
+
+  # Copies the temporary file to its final location
+  # and computes its MD5 hash
+  def files_to_final_location
+    temp_file_size = @temp_file ? (@temp_file.respond_to?(:decoded) ? @temp_file.decoded.length : @temp_file.size) : 0
+    if @temp_file.kind_of?(Mail::Part)
+      tf = @temp_file.decoded
+    else
+      tf = @temp_file
+    end
+    if temp_file_size > 0
+      logger.debug("saving '#{self.diskfile}'")
+      md5 = Digest::MD5.new
+      File.open(diskfile, "wb") do |f|
+        buffer = ""
+        while (buffer = tf.read(8192))
+          f.write(buffer)
+          md5.update(buffer)
+        end
+      end
+      self.digest = md5.hexdigest
+    end
+    # Don't save the content type if it's longer than the authorized length
+    if self.content_type && self.content_type.length > 255
+      self.content_type = nil
+    end
+  end
+
+  # Deletes file on the disk
+  def delete_from_disk
+    File.delete(diskfile) if !filename.blank? && File.exist?(diskfile)
   end
 
   # Returns file's location on disk
@@ -136,12 +179,6 @@ class Attachment < ActiveRecord::Base
   end
 
 private
-  def validate_max_file_size
-    if self.filesize > Setting.attachment_max_size.to_i.kilobytes
-      errors.add(:base, :too_long, :count => Setting.attachment_max_size.to_i.kilobytes)
-    end
-  end
-
   def sanitize_filename(value)
     # get only the filename, not the whole path
     just_filename = value.gsub(/^.*(\\|\/)/, '')
@@ -167,32 +204,5 @@ private
       timestamp.succ!
     end
     "#{timestamp}_#{ascii}"
-  end
-
-  # Deletes file on the disk
-  def delete_from_disk
-    File.delete(diskfile) if !filename.blank? && File.exist?(diskfile)
-  end
-
-  # Copies the temporary file to its final location
-  # and computes its MD5 hash
-  def files_to_final_location
-    temp_file_size = @temp_file ? (@temp_file.respond_to?(:decoded) ? @temp_file.decoded.length : @temp_file.size) : 0
-    if temp_file_size > 0
-      logger.debug("saving '#{self.diskfile}'")
-      md5 = Digest::MD5.new
-      File.open(diskfile, "wb") do |f|
-        buffer = ""
-        while (buffer = @temp_file.read(8192))
-          f.write(buffer)
-          md5.update(buffer)
-        end
-      end
-      self.digest = md5.hexdigest
-    end
-    # Don't save the content type if it's longer than the authorized length
-    if self.content_type && self.content_type.length > 255
-      self.content_type = nil
-    end
   end
 end

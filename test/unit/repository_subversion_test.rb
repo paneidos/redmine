@@ -24,7 +24,7 @@ class RepositorySubversionTest < ActiveSupport::TestCase
 
   def setup
     @project = Project.find(3)
-    @repository = Subversion.create(:project => @project,
+    @repository = Repository::Subversion.create(:project => @project,
              :url => self.class.subversion_repository_url)
     assert @repository
   end
@@ -90,7 +90,7 @@ class RepositorySubversionTest < ActiveSupport::TestCase
 
     def test_directory_listing_with_square_brackets_in_base
       @project = Project.find(3)
-      @repository = Subversion.create(
+      @repository = Repository::Subversion.create(
                           :project => @project,
                           :url => "file:///#{self.class.repository_path('subversion')}/subversion_test/[folder_with_brackets]")
 

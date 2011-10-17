@@ -1,9 +1,10 @@
-<%= form_for @repository, :remote => true,
+<%= form_for @repository, { 
+                   :as => :repository, :remote => true,
                    :url => { :controller => 'repositories', :action => 'edit', :id => @project },
                    :builder => TabularFormBuilder,
-                   :lang => current_language do |f| %>
+                   :lang => current_language } do |f| %>
 
-<%= error_messages_for :repository %>
+<%= error_messages_for 'repository' %>
 
 <div class="box tabular">
 <p>

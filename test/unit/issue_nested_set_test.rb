@@ -51,7 +51,8 @@ class IssueNestedSetTest < ActiveSupport::TestCase
 
   def test_creating_a_child_in_different_project_should_not_validate
     issue = create_issue!
-    child = Issue.new(:project_id => 2, :tracker_id => 1, :author_id => 1, :subject => 'child', :parent_issue_id => issue.id)
+    child = Issue.new(:project_id => 2, :tracker_id => 1, :author_id => 1,
+                      :subject => 'child', :parent_issue_id => issue.id)
     assert !child.save
     assert_not_nil child.errors[:parent_issue_id]
   end
@@ -178,7 +179,7 @@ class IssueNestedSetTest < ActiveSupport::TestCase
     child.reload
     child.parent_issue_id = grandchild.id
     assert !child.save
-    assert_not_nil child.errors.on(:parent_issue_id)
+    assert_not_nil child.errors[:parent_issue_id]
   end
 
   def test_moving_an_issue_should_keep_valid_relations_only
@@ -234,9 +235,9 @@ class IssueNestedSetTest < ActiveSupport::TestCase
   end
 
   def test_destroy_child_issue_with_children
-    root = Issue.create!(:project_id => 1, :author_id => 2, :tracker_id => 1, :subject => 'root', :status_id => 1, :priority => IssuePriority.first)
-    child = Issue.create!(:project_id => 1, :author_id => 2, :tracker_id => 1, :subject => 'child', :parent_issue_id => root.id, :status_id => 1, :priority => IssuePriority.first)
-    leaf = Issue.create!(:project_id => 1, :author_id => 2, :tracker_id => 1, :subject => 'leaf', :parent_issue_id => child.id, :status_id => 1, :priority => IssuePriority.first)
+    root = Issue.create!(:project_id => 1, :author_id => 2, :tracker_id => 1, :subject => 'root')
+    child = Issue.create!(:project_id => 1, :author_id => 2, :tracker_id => 1, :subject => 'child', :parent_issue_id => root.id)
+    leaf = Issue.create!(:project_id => 1, :author_id => 2, :tracker_id => 1, :subject => 'leaf', :parent_issue_id => child.id)
     leaf.init_journal(User.find(2))
     leaf.subject = 'leaf with journal'
     leaf.save!
@@ -375,6 +376,6 @@ class IssueNestedSetTest < ActiveSupport::TestCase
 
   # Helper that creates an issue with default attributes
   def create_issue!(attributes={})
-    Issue.create!({:project_id => 1, :tracker_id => 1, :author_id => 1, :subject => 'test', :status_id => 1, :priority => IssuePriority.first}.merge(attributes))
+    Issue.create!({:project_id => 1, :tracker_id => 1, :author_id => 1, :subject => 'test'}.merge(attributes))
   end
 end

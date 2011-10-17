@@ -58,7 +58,7 @@ class WatcherTest < ActiveSupport::TestCase
     @user.reload
     assert !@user.valid?
 
-    issue = Issue.new(:project => Project.find(1), :tracker_id => 1, :subject => "test", :author => User.find(2), :status_id => 1, :priority => IssuePriority.all.first)
+    issue = Issue.new(:project => Project.find(1), :tracker_id => 1, :subject => "test", :author => User.find(2))
     issue.watcher_users << @user
     issue.save!
     assert issue.watched_by?(@user)

@@ -126,7 +126,7 @@ class MailHandler < ActionMailer::Base
       raise UnauthorizedAction unless user.allowed_to?(:add_issues, project)
     end
 
-    issue = Issue.new(:author => user, :project => project, :status_id => 1, :priority => IssuePriority.all.first)
+    issue = Issue.new(:author => user, :project => project)
     issue.safe_attributes = issue_attributes_from_keywords(issue)
     issue.safe_attributes = {'custom_field_values' => custom_field_values_from_keywords(issue)}
     issue.subject = email.subject.to_s.chomp[0,255]
@@ -246,8 +246,8 @@ class MailHandler < ActionMailer::Base
     keys.reject! {|k| k.blank?}
     keys.collect! {|k| Regexp.escape(k)}
     format ||= '.+'
-    v = text.scan(/^(#{keys.join('|')})[ \t]*:[ \t]*(#{format})\s*$/i)
-    v[0] && v[0][1].strip
+    text.gsub!(/^(#{keys.join('|')})[ \t]*:[ \t]*(#{format})\s*$/i, '')
+    $2 && $2.strip
   end
 
   def target_project
@@ -262,7 +262,7 @@ class MailHandler < ActionMailer::Base
   # Returns a Hash of issue attributes extracted from keywords in the email body
   def issue_attributes_from_keywords(issue)
     assigned_to = (k = get_keyword(:assigned_to, :override => true)) && find_assignee_from_keyword(k, issue)
-    
+
     attrs = {
       'tracker_id' => (k = get_keyword(:tracker)) && issue.project.trackers.named(k).first.try(:id),
       'status_id' =>  (k = get_keyword(:status)) && IssueStatus.named(k).first.try(:id),
@@ -306,7 +306,8 @@ class MailHandler < ActionMailer::Base
       # no text/plain part found, assuming html-only email
       # strip html tags and remove doctype directive
       @plain_text_body = strip_tags(@email.body.to_s)
-      @plain_text_body.gsub! %r{^<!DOCTYPE .*$}, ''
+      text_body = @plain_text_body.gsub %r{^<!DOCTYPE .*$}, ''
+      @plain_text_body = text_body
     else
       @plain_text_body = plain_text_part.body.to_s
     end

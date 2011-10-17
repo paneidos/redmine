@@ -29,8 +29,8 @@ class Repository < ActiveRecord::Base
   # Raw SQL to delete changesets and changes in the database
   # has_many :changesets, :dependent => :destroy is too slow for big repositories
   before_destroy :clear_changesets
-  validates_length_of :password, :maximum => 255, :allow_nil => true
 
+  validates_length_of :password, :maximum => 255, :allow_nil => true
   # Checks if the SCM is enabled when creating a repository
   validate :repo_create_validation, :on => :create
 
@@ -270,7 +270,7 @@ class Repository < ActiveRecord::Base
   end
 
   def self.factory(klass_name, *args)
-    klass = klass_name.constantize
+    klass = "Repository::#{klass_name}".constantize
     klass.new(*args)
   rescue
     nil
@@ -317,12 +317,5 @@ class Repository < ActiveRecord::Base
     connection.delete("DELETE FROM #{ch} WHERE #{ch}.changeset_id IN (SELECT #{cs}.id FROM #{cs} WHERE #{cs}.repository_id = #{id})")
     connection.delete("DELETE FROM #{ci} WHERE #{ci}.changeset_id IN (SELECT #{cs}.id FROM #{cs} WHERE #{cs}.repository_id = #{id})")
     connection.delete("DELETE FROM #{cs} WHERE #{cs}.repository_id = #{id}")
-  end
-  
-  def strip_urls
-    # Strips url and root_url
-    url.strip!
-    root_url.strip!
-    true
   end
 end

@@ -1,4 +1,4 @@
-RAILS_ROOT = Rails.root
+# RAILS_ROOT = Rails.root
 
 class ActiveModel::Errors
   alias :length :size

@@ -26,14 +26,14 @@ class RepositoryMercurialTest < ActiveSupport::TestCase
 
   if File.directory?(REPOSITORY_PATH)
     def setup
-      klass = Mercurial
+      klass = Repository::Mercurial
       assert_equal "Mercurial", klass.scm_name
       assert klass.scm_adapter_class
       assert_not_equal "", klass.scm_command
       assert_equal true, klass.scm_available
 
       @project    = Project.find(3)
-      @repository = Mercurial.create(
+      @repository = Repository::Mercurial.create(
                       :project => @project,
                       :url     => REPOSITORY_PATH,
                       :path_encoding => 'ISO-8859-1'

@@ -30,7 +30,7 @@ class WikiPage < ActiveRecord::Base
                 :datetime => :created_on,
                 :url => Proc.new {|o| {:controller => 'wiki', :action => 'show', :project_id => o.wiki.project, :id => o.title}}
 
-  acts_as_searchable :columns => ['title', 'text'],
+  acts_as_searchable :columns => ['title', "#{WikiContent.table_name}.text"],
                      :include => [{:wiki => :project}, :content],
                      :permission => :view_wiki_pages,
                      :project_key => "#{Wiki.table_name}.project_id"
@@ -41,12 +41,13 @@ class WikiPage < ActiveRecord::Base
   validates_format_of :title, :with => /^[^,\.\/\?\;\|\s]*$/
   validates_uniqueness_of :title, :scope => :wiki_id, :case_sensitive => false
   validates_associated :content
+
   validate :validate_parent_title
-  
   before_destroy :remove_redirects
-  before_save :handle_redirects
+  before_save    :handle_redirects
+
   after_initialize :protect_page
-  
+
   # eager load information about last updates, without loading text
   scope :with_updated_on, {
     :select => "#{WikiPage.table_name}.*, #{WikiContent.table_name}.updated_on",
@@ -56,7 +57,7 @@ class WikiPage < ActiveRecord::Base
   # Wiki pages that are protected by default
   DEFAULT_PROTECTED_PAGES = %w(sidebar)
 
-  def after_initialize
+  def protect_page
     if new_record? && DEFAULT_PROTECTED_PAGES.include?(title.to_s.downcase)
       self.protected = true
     end
@@ -170,36 +171,6 @@ class WikiPage < ActiveRecord::Base
     errors.add(:parent_title, :invalid) if !@parent_title.blank? && parent.nil?
     errors.add(:parent_title, :circular_dependency) if parent && (parent == self || parent.ancestors.include?(self))
     errors.add(:parent_title, :not_same_project) if parent && (parent.wiki_id != wiki_id)
-  end
-  
-  private
-  
-  def remove_redirects
-    # Remove redirects to this page
-    wiki.redirects.find_all_by_redirects_to(title).each(&:destroy)    
-  end
-  
-  def handle_redirects
-    self.title = Wiki.titleize(title)    
-    # Manage redirects if the title has changed
-    if !@previous_title.blank? && (@previous_title != title) && !new_record?
-      # Update redirects that point to the old title
-      wiki.redirects.find_all_by_redirects_to(@previous_title).each do |r|
-        r.redirects_to = title
-        r.title == r.redirects_to ? r.destroy : r.save
-      end
-      # Remove redirects for the new title
-      wiki.redirects.find_all_by_title(title).each(&:destroy)
-      # Create a redirect to the new title
-      wiki.redirects << WikiRedirect.new(:title => @previous_title, :redirects_to => title) unless redirect_existing_links == "0"
-      @previous_title = nil
-    end
-  end
-  
-  def protect_page
-    if new_record? && DEFAULT_PROTECTED_PAGES.include?(title.to_s.downcase)
-      self.protected = true
-    end
   end
 end
 

@@ -89,7 +89,7 @@ class WikiControllerTest < ActionController::TestCase
     @request.session[:user_id] = 2
     put :update, :project_id => 1,
                 :id => 'New page',
-                :wiki_content => {:comments => 'Created the page',
+                :content => {:comments => 'Created the page',
                              :text => "h1. New page\n\nThis is a new page",
                              :version => 0}
     assert_redirected_to :action => 'show', :project_id => 'ecookbook', :id => 'New_page'
@@ -105,7 +105,7 @@ class WikiControllerTest < ActionController::TestCase
       assert_difference 'Attachment.count' do
         put :update, :project_id => 1,
                     :id => 'New page',
-                    :wiki_content => {:comments => 'Created the page',
+                    :content => {:comments => 'Created the page',
                                  :text => "h1. New page\n\nThis is a new page",
                                  :version => 0},
                     :attachments => {'1' => {'file' => uploaded_test_file('testfile.txt', 'text/plain')}}
@@ -123,7 +123,7 @@ class WikiControllerTest < ActionController::TestCase
         assert_difference 'WikiContent::Version.count' do
           put :update, :project_id => 1,
             :id => 'Another_page',
-            :wiki_content => {
+            :content => {
               :comments => "my comments",
               :text => "edited",
               :version => 1
@@ -146,7 +146,7 @@ class WikiControllerTest < ActionController::TestCase
         assert_no_difference 'WikiContent::Version.count' do
           put :update, :project_id => 1,
             :id => 'Another_page',
-            :wiki_content => {
+            :content => {
               :comments => 'a' * 300,  # failure here, comment is too long
               :text => 'edited',
               :version => 1
@@ -158,8 +158,8 @@ class WikiControllerTest < ActionController::TestCase
     assert_template 'edit'
 
     assert_error_tag :descendant => {:content => /Comment is too long/}
-    assert_tag :tag => 'textarea', :attributes => {:id => 'wiki_content_text'}, :content => 'edited'
-    assert_tag :tag => 'input', :attributes => {:id => 'wiki_content_version', :value => '1'}
+    assert_tag :tag => 'textarea', :attributes => {:id => 'content_text'}, :content => 'edited'
+    assert_tag :tag => 'input', :attributes => {:id => 'content_version', :value => '1'}
   end
 
   def test_update_stale_page_should_not_raise_an_error
@@ -174,7 +174,7 @@ class WikiControllerTest < ActionController::TestCase
         assert_no_difference 'WikiContent::Version.count' do
           put :update, :project_id => 1,
             :id => 'Another_page',
-            :wiki_content => {
+            :content => {
               :comments => 'My comments',
               :text => 'Text should not be lost',
               :version => 1
@@ -188,10 +188,10 @@ class WikiControllerTest < ActionController::TestCase
       :attributes => { :class => /error/ },
       :content => /Data has been updated by another user/
     assert_tag 'textarea',
-      :attributes => { :name => 'wiki_content[text]' },
+      :attributes => { :name => 'content[text]' },
       :content => /Text should not be lost/
     assert_tag 'input',
-      :attributes => { :name => 'wiki_content[comments]', :value => 'My comments' }
+      :attributes => { :name => 'content[comments]', :value => 'My comments' }
 
     c.reload
     assert_equal 'Previous text', c.text
@@ -201,7 +201,7 @@ class WikiControllerTest < ActionController::TestCase
   def test_preview
     @request.session[:user_id] = 2
     xhr :post, :preview, :project_id => 1, :id => 'CookBook_documentation',
-                                   :wiki_content => { :comments => '',
+                                   :content => { :comments => '',
                                                  :text => 'this is a *previewed text*',
                                                  :version => 3 }
     assert_response :success
@@ -212,7 +212,7 @@ class WikiControllerTest < ActionController::TestCase
   def test_preview_new_page
     @request.session[:user_id] = 2
     xhr :post, :preview, :project_id => 1, :id => 'New page',
-                                   :wiki_content => { :text => 'h1. New page',
+                                   :content => { :text => 'h1. New page',
                                                  :comments => '',
                                                  :version => 0 }
     assert_response :success
@@ -481,7 +481,7 @@ class WikiControllerTest < ActionController::TestCase
     get :show, :project_id => 1
     assert_response :success
     assert_template 'show'
-    assert_tag :tag => 'a', :attributes => { :href => '/wiki/CookBook_documentation/edit' }
+    assert_tag :tag => 'a', :attributes => { :href => '/projects/1/wiki/CookBook_documentation/edit' }
   end
 
   def test_show_page_without_edit_link
@@ -489,7 +489,7 @@ class WikiControllerTest < ActionController::TestCase
     get :show, :project_id => 1
     assert_response :success
     assert_template 'show'
-    assert_no_tag :tag => 'a', :attributes => { :href => '/wiki/CookBook_documentation/edit' }
+    assert_no_tag :tag => 'a', :attributes => { :href => '/projects/1/wiki/CookBook_documentation/edit' }
   end
 
   def test_edit_unprotected_page

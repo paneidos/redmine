@@ -19,7 +19,6 @@ class Change < ActiveRecord::Base
   belongs_to :changeset
 
   validates_presence_of :changeset_id, :action, :path
-
   before_save :init_path
   before_validation :replace_invalid_utf8_of_path
 

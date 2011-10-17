@@ -27,8 +27,12 @@ class IssueStatus < ActiveRecord::Base
   validates_uniqueness_of :name
   validates_length_of :name, :maximum => 30
   validates_inclusion_of :default_done_ratio, :in => 0..100, :allow_nil => true
-  
+
   scope :named, lambda {|arg| { :conditions => ["LOWER(#{table_name}.name) = LOWER(?)", arg.to_s.strip]}}
+
+  def update_default
+    IssueStatus.update_all("is_default=#{connection.quoted_false}", ['id <> ?', id]) if self.is_default?
+  end
 
   # Returns the default status for new issues
   def self.default
@@ -88,14 +92,9 @@ class IssueStatus < ActiveRecord::Base
 
   def to_s; name end
 
-  private
-  
+private
   def check_integrity
     raise "Can't delete status" if Issue.find(:first, :conditions => ["status_id=?", self.id])
-  end
-
-  def update_default
-    IssueStatus.update_all("is_default=#{connection.quoted_false}", ['id <> ?', id]) if self.is_default?
   end
 
   # Deletes associated workflows

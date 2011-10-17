@@ -39,7 +39,7 @@ class RepositoryTest < ActiveSupport::TestCase
   end
 
   def test_create
-    repository = Subversion.new(:project => Project.find(3))
+    repository = Repository::Subversion.new(:project => Project.find(3))
     assert !repository.save
 
     repository.url = "svn://localhost"
@@ -63,7 +63,7 @@ class RepositoryTest < ActiveSupport::TestCase
   def test_should_not_create_with_disabled_scm
     # disable Subversion
     with_settings :enabled_scm => ['Darcs', 'Git'] do
-      repository = Subversion.new(
+      repository = Repository::Subversion.new(
                       :project => Project.find(3), :url => "svn://localhost")
       assert !repository.save
       assert_equal I18n.translate('activerecord.errors.messages.invalid'),
@@ -118,7 +118,7 @@ class RepositoryTest < ActiveSupport::TestCase
   end
 
   def test_for_changeset_comments_strip
-    repository = Mercurial.create(
+    repository = Repository::Mercurial.create(
                     :project => Project.find( 4 ),
                     :url => '/foo/bar/baz' )
     comment = <<-COMMENT
@@ -138,7 +138,7 @@ class RepositoryTest < ActiveSupport::TestCase
   end
 
   def test_for_urls_strip_cvs
-    repository = Cvs.create(
+    repository = Repository::Cvs.create(
         :project => Project.find(4),
         :url => ' :pserver:login:password@host:/path/to/the/repository',
         :root_url => 'foo  ',
@@ -151,7 +151,7 @@ class RepositoryTest < ActiveSupport::TestCase
   end
 
   def test_for_urls_strip_subversion
-    repository = Subversion.new(
+    repository = Repository::Subversion.create(
         :project => Project.find(4),
         :url => ' file:///dummy   ')
     assert repository.save
@@ -160,7 +160,7 @@ class RepositoryTest < ActiveSupport::TestCase
   end
 
   def test_for_urls_strip_git
-    repository = Git.create(
+    repository = Repository::Git.create(
         :project => Project.find(4),
         :url => ' c:\dummy   ')
     assert repository.save
@@ -215,13 +215,13 @@ class RepositoryTest < ActiveSupport::TestCase
   end
 
   def test_filesystem_avaialbe
-    klass = Filesystem
+    klass = Repository::Filesystem
     assert klass.scm_adapter_class
     assert_equal true, klass.scm_available
   end
 
   def test_merge_extra_info
-    repo = Subversion.new(:project => Project.find(3))
+    repo = Repository::Subversion.new(:project => Project.find(3))
     assert !repo.save
     repo.url = "svn://localhost"
     assert repo.save

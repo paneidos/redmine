@@ -53,7 +53,7 @@ class User < Principal
 
   # Active non-anonymous users scope
   scope :active, :conditions => "#{User.table_name}.status = #{STATUS_ACTIVE}"
-  
+
   acts_as_customizable
 
   attr_accessor :password, :password_confirmation
@@ -71,14 +71,13 @@ class User < Principal
   validates_format_of :mail, :with => /^([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})$/i, :allow_blank => true
   validates_length_of :mail, :maximum => 60, :allow_nil => true
   validates_confirmation_of :password, :allow_nil => true
-  validate :validate_password_length
   validates_inclusion_of :mail_notification, :in => MAIL_NOTIFICATION_OPTIONS.collect(&:first), :allow_blank => true
   validate :validate_password_length
 
-  before_save :update_hashed_password
   before_create :set_mail_notification
+  before_save   :update_hashed_password
   before_destroy :remove_references_before_destroy
-  
+
   scope :in_group, lambda {|group|
     group_id = group.is_a?(Group) ? group.id : group.to_i
     { :conditions => ["#{User.table_name}.id IN (SELECT gu.user_id FROM #{table_name_prefix}groups_users#{table_name_suffix} gu WHERE gu.group_id = ?)", group_id] }
@@ -250,7 +249,7 @@ class User < Principal
   end
 
   def pref
-    self.preference ||= build_preference
+    self.preference ||= UserPreference.new(:user => self)
   end
 
   def time_zone
@@ -526,8 +525,8 @@ class User < Principal
   def self.anonymous
     anonymous_user = AnonymousUser.find(:first)
     if anonymous_user.nil?
-      anonymous_user = AnonymousUser.new(:lastname => 'Anonymous', :firstname => '', :mail => '', :login => '', :status => 0)
-      raise 'Unable to create the anonymous user.' unless anonymous_user.save
+      anonymous_user = AnonymousUser.create(:lastname => 'Anonymous', :firstname => '', :mail => '', :login => '', :status => 0)
+      raise 'Unable to create the anonymous user.' if anonymous_user.new_record?
     end
     anonymous_user
   end
@@ -591,6 +590,7 @@ class User < Principal
   def self.generate_salt
     SecureRandom.hex(16)
   end
+
 end
 
 class AnonymousUser < User
@@ -598,7 +598,7 @@ class AnonymousUser < User
 
   def ensure_single_anonymous_user
     # There should be only one AnonymousUser in the database
-    errors[:base] << 'An anonymous user already exists.' if AnonymousUser.find(:first)
+    errors.add :base, 'An anonymous user already exists.' if AnonymousUser.find(:first)
   end
 
   def available_custom_fields

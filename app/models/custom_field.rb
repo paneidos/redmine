@@ -24,20 +24,43 @@ class CustomField < ActiveRecord::Base
   validates_uniqueness_of :name, :scope => :type
   validates_length_of :name, :maximum => 30
   validates_inclusion_of :field_format, :in => Redmine::CustomFieldFormat.available_formats
-  validate :validate_possible_values, :validate_default_value, :validate_regexp
-  
-  before_validation :lock_fields
-  
+
+  validate :validate_values
+  before_validation :set_searchable
   after_initialize :init_possible_values
 
-  def lock_fields
+  def init_possible_values
+    self.possible_values ||= []
+  end
+
+  def set_searchable
     # make sure these fields are not searchable
     self.searchable = false if %w(int float date bool).include?(field_format)
     true
   end
 
+  def validate_values
+    if self.field_format == "list"
+      errors.add(:possible_values, :blank) if self.possible_values.nil? || self.possible_values.empty?
+      errors.add(:possible_values, :invalid) unless self.possible_values.is_a? Array
+    end
+
+    if regexp.present?
+      begin
+        Regexp.new(regexp)
+      rescue
+        errors.add(:regexp, :invalid)
+      end
+    end
+
+    # validate default value
+    v = CustomValue.new(:custom_field => self.clone, :value => default_value, :customized => nil)
+    v.custom_field.is_required = false
+    errors.add(:default_value, :invalid) unless v.valid?
+  end
+
   def possible_values_options(obj=nil)
-    case (field_format rescue nil) # MissingAttributeError
+    case field_format
     when 'user', 'version'
       if obj.respond_to?(:project) && obj.project
         case field_format
@@ -57,7 +80,7 @@ class CustomField < ActiveRecord::Base
   end
 
   def possible_values(obj=nil)
-    case (field_format rescue nil) # MissingAttributeError
+    case field_format
     when 'user', 'version'
       possible_values_options(obj).collect(&:last)
     else
@@ -135,34 +158,5 @@ class CustomField < ActiveRecord::Base
 
   def type_name
     nil
-  end
-
-private
-  def validate_possible_values
-    if self.field_format == "list"
-      errors.add(:possible_values, :blank) if self.possible_values.nil? || self.possible_values.empty?
-      errors.add(:possible_values, :invalid) unless self.possible_values.is_a? Array
-    end
-  end
-
-  def validate_default_value
-    # validate default value
-    v = CustomValue.new(:custom_field => self.clone, :value => default_value, :customized => nil)
-    v.custom_field.is_required = false
-    errors.add(:default_value, :invalid) unless v.valid?
-  end
-  
-  def validate_regexp
-    if regexp.present?
-      begin
-        Regexp.new(regexp)
-      rescue
-        errors.add(:regexp, :invalid)
-      end
-    end
-  end
-  
-  def init_possible_values
-    self.possible_values ||= []
   end
 end

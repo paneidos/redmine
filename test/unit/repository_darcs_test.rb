@@ -25,7 +25,7 @@ class RepositoryDarcsTest < ActiveSupport::TestCase
 
   def setup
     @project = Project.find(3)
-    @repository = Darcs.create(
+    @repository = Repository::Darcs.create(
                       :project      => @project,
                       :url          => REPOSITORY_PATH,
                       :log_encoding => 'UTF-8'

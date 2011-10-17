@@ -51,18 +51,18 @@ class SysControllerTest < ActionController::TestCase
     assert_response :created
 
     r = Project.find(4).repository
-    assert r.is_a?(Subversion)
+    assert r.is_a?(Repository::Subversion)
     assert_equal 'file:///create/project/repository/subproject2', r.url
   end
 
   def test_fetch_changesets
-    Subversion.any_instance.expects(:fetch_changesets).returns(true)
+    Repository::Subversion.any_instance.expects(:fetch_changesets).returns(true)
     get :fetch_changesets
     assert_response :success
   end
 
   def test_fetch_changesets_one_project
-    Subversion.any_instance.expects(:fetch_changesets).returns(true)
+    Repository::Subversion.any_instance.expects(:fetch_changesets).returns(true)
     get :fetch_changesets, :id => 'ecookbook'
     assert_response :success
   end

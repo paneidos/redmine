@@ -224,8 +224,6 @@ class VersionTest < ActiveSupport::TestCase
   def add_issue(version, attributes={})
     Issue.create!({:project => version.project,
                    :fixed_version => version,
-                   :status_id => 1,
-                   :priority => IssuePriority.all.first,
                    :subject => 'Test',
                    :author => User.find(:first),
                    :tracker => version.project.trackers.find(:first)}.merge(attributes))

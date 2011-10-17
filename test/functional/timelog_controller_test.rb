@@ -88,7 +88,7 @@ class TimelogControllerTest < ActionController::TestCase
     t = TimeEntry.find_by_comments('Some work on TimelogControllerTest')
     assert_not_nil t
     assert_equal 11, t.activity_id
-    assert_equal 7.3, t.hours.round(1)
+    assert_equal 7.3, t.hours
     assert_equal 3, t.user_id
     assert_equal i, t.issue
     assert_equal i.project, t.project
@@ -110,7 +110,7 @@ class TimelogControllerTest < ActionController::TestCase
     t = TimeEntry.find_by_comments('Some work on TimelogControllerTest')
     assert_not_nil t
     assert_equal 11, t.activity_id
-    assert_equal 7.3, t.hours.round(1)
+    assert_equal 7.3, t.hours
     assert_equal 3, t.user_id
   end
 

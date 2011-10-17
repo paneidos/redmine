@@ -37,7 +37,7 @@ class RepositoriesFilesystemControllerTest < ActionController::TestCase
     User.current = nil
     Setting.enabled_scm << 'Filesystem' unless Setting.enabled_scm.include?('Filesystem')
     @project = Project.find(PRJ_ID)
-    @repository = Filesystem.create(
+    @repository = Repository::Filesystem.create(
                       :project       => @project,
                       :url           => REPOSITORY_PATH,
                       :path_encoding => ''
@@ -134,7 +134,7 @@ class RepositoriesFilesystemControllerTest < ActionController::TestCase
       @project.reload
       assert_nil @project.repository
 
-      @repository = Filesystem.create(
+      @repository = Repository::Filesystem.create(
                       :project       => Project.find(PRJ_ID),
                       :url           => "/invalid",
                       :path_encoding => ''

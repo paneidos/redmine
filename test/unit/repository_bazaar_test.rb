@@ -26,7 +26,7 @@ class RepositoryBazaarTest < ActiveSupport::TestCase
 
   def setup
     @project = Project.find(3)
-    @repository = Bazaar.create(
+    @repository = Repository::Bazaar.create(
               :project => @project, :url => "file:///#{REPOSITORY_PATH}",
               :log_encoding => 'UTF-8')
     assert @repository

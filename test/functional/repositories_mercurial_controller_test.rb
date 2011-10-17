@@ -39,7 +39,7 @@ class RepositoriesMercurialControllerTest < ActionController::TestCase
     @response   = ActionController::TestResponse.new
     User.current = nil
     @project    = Project.find(PRJ_ID)
-    @repository = Mercurial.create(
+    @repository = Repository::Mercurial.create(
                       :project => @project,
                       :url     => REPOSITORY_PATH,
                       :path_encoding => 'ISO-8859-1'
@@ -483,7 +483,7 @@ class RepositoriesMercurialControllerTest < ActionController::TestCase
       @project.reload
       assert_nil @project.repository
 
-      @repository = Mercurial.create(
+      @repository = Repository::Mercurial.create(
                       :project => Project.find(PRJ_ID),
                       :url     => "/invalid",
                       :path_encoding => 'ISO-8859-1'

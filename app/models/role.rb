@@ -166,9 +166,10 @@ private
   def self.find_or_create_system_role(builtin, name)
     role = first(:conditions => {:builtin => builtin})
     if role.nil?
-      role = create!(:name => name, :position => 0) do |r|
+      role = create(:name => name, :position => 0) do |r|
         r.builtin = builtin
       end
+      raise "Unable to create the #{name} role." if role.new_record?
     end
     role
   end

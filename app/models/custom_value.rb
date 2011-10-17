@@ -21,7 +21,13 @@ class CustomValue < ActiveRecord::Base
 
   validate :validate_custom_value
   after_initialize :set_default_value
-  
+
+  def set_default_value
+    if new_record? && custom_field && (customized_type.blank? || (customized && customized.new_record?))
+      self.value ||= custom_field.default_value
+    end
+  end
+
   # Returns true if the boolean custom value is true
   def true?
     self.value == '1'
@@ -43,8 +49,7 @@ class CustomValue < ActiveRecord::Base
     value.to_s
   end
 
-  protected
-  
+protected
   def validate_custom_value
     if value.blank?
       errors.add(:value, :blank) if custom_field.is_required? and value.blank?
@@ -64,14 +69,6 @@ class CustomValue < ActiveRecord::Base
       when 'list'
         errors.add(:value, :inclusion) unless custom_field.possible_values.include?(value)
       end
-    end
-  end
-  
-  private
-  
-  def set_default_value
-    if new_record? && custom_field && (customized_type.blank? || (customized && customized.new_record?))
-      self.value ||= custom_field.default_value
     end
   end
 end

@@ -61,11 +61,11 @@
 <p class="nodata"><%= l(:label_no_data) %></p>
 <% end %>
 
-<% other_formats_links do |f| %>
-  <%= f.link_to 'Atom', :url => {:key => User.current.rss_key} %>
+<%= other_formats_links do |f| %>
+  <% f.link_to 'Atom', :url => {:key => User.current.rss_key} %>
 <% end %>
 
-<% html_title h(@board.name) %>
+<% html_title @board.name %>
 
 <% content_for :header_tags do %>
     <%= auto_discovery_link_tag(:atom, {:format => 'atom', :key => User.current.rss_key}, :title => "#{@project}: #{@board}") %>
