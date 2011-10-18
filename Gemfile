@@ -44,14 +44,10 @@ end
 # orders of magnitude compared to their native counterparts. You have been
 # warned.
 #
-platforms :mri do
+platforms :mri, :mingw do
   group :mysql do
     gem "mysql"
     #   gem "ruby-mysql"
-  end
-
-  group :mysql2 do
-    gem "mysql2", "~> 0.2.7"
   end
 
   group :postgres do
@@ -60,13 +56,21 @@ platforms :mri do
   end
 end
 
-platforms :mri_18 do
+platforms :mri_18, :mingw_18 do
   group :sqlite do
     gem "sqlite3-ruby", "< 1.3", :require => "sqlite3"
   end
 end
 
 platforms :mri_19 do
+  ## Add Windows support
+  ## https://github.com/brianmario/mysql2/issues/8
+  ## Getting mysql2 gem to work with Ruby on Rails 3.0 and Windows 7 64bit
+  ## http://paul-wong-jr.blogspot.com/2011/06/getting-mysql2-gem-to-work-with-ruby-on.html
+  group :mysql2 do
+    gem "mysql2", "~> 0.2.7"
+  end
+
   group :sqlite do
     gem "sqlite3"
   end
