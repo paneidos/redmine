@@ -297,7 +297,7 @@ module RepositoriesHelper
       commit_hashes = []
       refs_map = {}
       href_proc ||= Proc.new {|x|x}
-      # heads.each{|r| refs_map[r.revision] ||= []; refs_map[r.revision]<<r}
+      heads.each{|r| refs_map[r.revision] ||= []; refs_map[r.revision]<<r}
       commits.reverse.each_with_index do |c,i|
         h = {}
         h[:parents] = c.parents.collect do |p|
@@ -331,16 +331,16 @@ module RepositoriesHelper
         end
 	    end
 
-      # j=0
-      # heads.each do |h|
-	    # if map.include? h.revision then
-      #     j = mark_chain(j+=1,map[h.revision], map)
-      #   end
-      # end
-      ## when no head matched anything use first commit
-      # if j == 0 then
-      #    mark_chain(j+=1,map.values.first, map)
-      # end
+      j=0
+      heads.each do |h|
+	    if map.include? h.revision then
+          j = mark_chain(j+=1,map[h.revision], map)
+        end
+      end
+      # when no head matched anything use first commit
+      if j == 0 then
+         mark_chain(j+=1,map.values.first, map)
+      end
 
       return [days, map.values]
     end
