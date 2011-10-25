@@ -41,6 +41,8 @@ gem 'awesome_nested_set'
 ## TODO rails-3.1: review the core changes to open_id_authentication and decide on actions
 # gem 'open_id_authentication'
 
+gem 'net-ldap'
+
 gem 'rails_autolink'
 gem 'rails_legacy_mapper'
 
