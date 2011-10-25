@@ -283,4 +283,82 @@ module RepositoriesHelper
                         ) +
                      '<br />'.html_safe + l(:text_scm_path_encoding_note))
   end
+    # Method is adding time and space on the
+    # list of commits. As well as returns date list
+    # corelated with time set on commits.
+    #
+    # @param [Array<GraphCommit>] comits to index
+    #
+    # @return [Array<TimeDate>] list of commit dates corelated with time on commits
+    def index_commits(commits, heads)
+      return nil if commits.nil? or commits.first.parents.nil?
+      days = []
+      map = {}
+      commit_hashes = []
+
+      commits.reverse.each_with_index do |c,i|
+        h = {}
+        h[:parents] = c.parents.collect do |p|
+          [p.revision,0,0]
+        end
+        h[:author] = c.author
+        h[:time] = i
+        h[:space] = 0
+        #h[:refs] = c.refs.collect{|r|r.name}.join(" ") unless c.refs.nil?
+        h[:id] = c.revision
+        h[:date] = c.committed_on
+        h[:message] = c.comments
+        h[:login] = c.author
+        commit_hashes << h
+        days[i]=[c.committed_on.day,c.committed_on.strftime("%b")]
+        map[c.revision] = h
+      end
+
+      #heads.select!{|h|h.is_a? Grit::Head or h.is_a? Grit::Remote}
+      # sort heads so the master is top and current branches are closer
+      heads.sort! do |a,b|
+        if a == "master"
+          -1
+        elsif  b == "master"
+          1
+        else
+          #b.commit.committed_on <=> a.commit.committed_on
+          a <=> b
+        end
+	    end
+
+      j=0
+      heads.each do |h|
+	    if map.include? h.revision then
+          j = mark_chain(j+=1,map[h.revision], map)
+        end
+      end
+      # when no head matched anything use first commit
+      if j == 0 then
+         mark_chain(j+=1,map.values.first, map)
+      end
+
+      return [days, map.values]
+    end
+
+    # Add space mark on commit and its parents
+    #
+    # @param [Fixnum] space (row on the graph) to be set
+    # @param [GraphCommit] the commit object.
+    # @param [Hash<String,GraphCommit>] map of commits
+    #
+    # @return [Fixnum] max space used.
+    def mark_chain(mark, commit, map)
+      commit[:space] = mark  if commit[:space] == 0
+      m1 = mark-1
+      marks = commit[:parents].collect do |p|
+        if map.include? p[0]  and map[p[0]][:space] == 0 then
+          mark_chain(m1+=1, map[p[0]],map)
+        else
+          m1+1
+        end
+      end
+      marks << mark
+      return marks.compact.max
+    end
 end
