@@ -26,6 +26,8 @@
 <h2><%= l(:label_revision) %> <%= format_revision(@changeset) %></h2>
 
 <p><% if @changeset.scmid %>ID: <%= h(@changeset.scmid) %><br /><% end %>
+   <% if @changeset.parents %>Parents: <%= (@changeset.parents.collect{|p|link_to_revision(p, @project, :text => p.identifier)}.join(", ")) %><br /><% end %>
+   <% if @changeset.children %>Children: <%= (@changeset.children.collect{|p|link_to_revision(p, @project, :text => p.identifier)}.join(", ")) %><br /><% end %>
 <span class="author"><%= authoring(@changeset.committed_on, @changeset.author) %></span></p>
 
 <%= textilizable @changeset.comments %>
