@@ -374,6 +374,10 @@ module Redmine
           lines.empty?
         end
       end
+
+      class Branch < String
+        attr_accessor :revision
+      end
     end
   end
 end
