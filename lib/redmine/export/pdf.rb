@@ -18,10 +18,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 require 'iconv'
-require 'rfpdf/fpdf'
 require 'fpdf/chinese'
 require 'fpdf/japanese'
 require 'fpdf/korean'
+require 'core/rmagick'
 
 module Redmine
   module Export
@@ -34,10 +34,13 @@ module Redmine
         attr_accessor :footer_date
 
         def initialize(lang)
+          @@k_path_cache = Rails.root.join('tmp', 'pdf')
+          FileUtils.mkdir_p @@k_path_cache unless File::exist?(@@k_path_cache)
           set_language_if_valid lang
           pdf_encoding = l(:general_pdf_encoding).upcase
           if RUBY_VERSION < '1.9'
-            @ic = Iconv.new(pdf_encoding, 'UTF-8')
+            @ic_encode = Iconv.new(pdf_encoding, 'UTF-8')
+            @ic_decode = Iconv.new('UTF-8', pdf_encoding)
           end
           super('P', 'mm', 'A4', (pdf_encoding == 'UTF-8'), pdf_encoding)
           case current_language.to_s.downcase
@@ -104,7 +107,11 @@ module Redmine
         end
 
         def fix_text_encoding(txt)
-          RDMPdfEncoding::rdm_pdf_iconv(@ic, txt)
+          RDMPdfEncoding::rdm_pdf_iconv(@ic_encode, txt)
+        end
+
+        def fix_text_decoding(txt)
+          RDMPdfEncoding::rdm_pdf_iconv(@ic_decode, txt, true)
         end
 
         def RDMCell(w ,h=0, txt='', border=0, ln=0, align='', fill=0, link='')
@@ -115,8 +122,35 @@ module Redmine
           MultiCell(w, h, fix_text_encoding(txt), border, align, fill, ln)
         end
 
-        def RDMwriteHTMLCell(w, h, x, y, html='', border=0, ln=1, fill=0)
-          writeHTMLCell(w, h, x, y, fix_text_encoding(html), border, ln, fill)
+        def RDMwriteHTMLCell(w, h, x, y, txt='', attachments=[], border=0, ln=1, fill=0)
+          @attachments = attachments.sort_by(&:created_on).reverse
+
+          writeHTMLCell(w, h, x, y,
+            fix_text_encoding(Redmine::WikiFormatting.to_html(Setting.text_formatting, txt)),
+            border, ln, fill)
+        end
+
+        def getImageFilename(attrname)
+          # attrname                               : general_pdf_encoding string file/uri name
+          if /^https?:\/\//i =~ attrname
+            uri = fix_text_decoding(attrname)           # get original URI
+
+            # check of unsafe URI
+            if uri =~ /[^-_.!~*'()a-zA-Z\d;\/?:@&=+$,\[\]%]/n
+              return URI.encode(uri)
+            else
+              return uri
+            end
+          else
+            for attachment in @attachments
+              # attachment.filename                    : UTF-8 string name
+              # attachment.diskfile                    : real server path file name
+              if fix_text_encoding(attachment.filename) == attrname && File.file?(attachment.diskfile)
+                return attachment.diskfile
+              end
+            end
+          end
+          return  nil
         end
 
         def Footer
@@ -344,9 +378,11 @@ module Redmine
         pdf.SetFontStyle('B',9)
         pdf.RDMCell(35+155, 5, l(:field_description), "LRT", 1)
         pdf.SetFontStyle('',9)
+
+        # Set resize image scale
+        pdf.SetImageScale(1.6)
         pdf.RDMwriteHTMLCell(35+155, 5, 0, 0,
-            Redmine::WikiFormatting.to_html(
-              Setting.text_formatting, issue.description.to_s),"LRB")
+            issue.description.to_s, issue.attachments, "LRB")
         pdf.Ln
 
         if issue.changesets.any? &&
@@ -363,8 +399,7 @@ module Redmine
             unless changeset.comments.blank?
               pdf.SetFontStyle('',8)
               pdf.RDMwriteHTMLCell(190,5,0,0,
-                   Redmine::WikiFormatting.to_html(
-                     Setting.text_formatting, changeset.comments.to_s), "")
+                  changeset.comments.to_s, issue.attachments, "")
             end
             pdf.Ln
           end
@@ -388,8 +423,7 @@ module Redmine
             pdf.Ln unless journal.details.empty?
             pdf.SetFontStyle('',8)
             pdf.RDMwriteHTMLCell(190,5,0,0,
-                  Redmine::WikiFormatting.to_html(
-                    Setting.text_formatting, journal.notes.to_s), "")
+                journal.notes.to_s, issue.attachments, "")
           end
           pdf.Ln
         end
@@ -412,26 +446,44 @@ module Redmine
 
       class RDMPdfEncoding
         include Redmine::I18n
-        def self.rdm_pdf_iconv(ic, txt)
+        def self.rdm_pdf_iconv(ic, txt, toUTF8 = false)
           txt ||= ''
           if txt.respond_to?(:force_encoding)
-            txt.force_encoding('UTF-8')
             if l(:general_pdf_encoding).upcase != 'UTF-8'
-              txt = txt.encode(l(:general_pdf_encoding), :invalid => :replace,
-                               :undef => :replace, :replace => '?')
+              if toUTF8 == false
+                txt.force_encoding('UTF-8')
+                txtar = txt.encode(l(:general_pdf_encoding), :invalid => :replace,
+                                 :undef => :replace, :replace => '?')
+                txtar.force_encoding('ASCII-8BIT')
+              else
+                txt.force_encoding(l(:general_pdf_encoding))
+                txtar = txt.encode('UTF-8', :invalid => :replace,
+                                 :undef => :replace, :replace => '?')
+                txt.force_encoding('ASCII-8BIT')
+              end
             else
-              txt = Redmine::CodesetUtil.replace_invalid_utf8(txt)
+              txt.force_encoding('UTF-8')
+              txtar = Redmine::CodesetUtil.replace_invalid_utf8(txt)
+              txtar.force_encoding('ASCII-8BIT')
             end
-            txt.force_encoding('ASCII-8BIT')
+            txt = txtar
           elsif RUBY_PLATFORM == 'java'
             begin
-              ic ||= Iconv.new(l(:general_pdf_encoding), 'UTF-8')
+              if toUTF8 == false
+                ic ||= Iconv.new(l(:general_pdf_encoding), 'UTF-8')
+              else
+                ic ||= Iconv.new('UTF-8', l(:general_pdf_encoding))
+              end
               txt = ic.iconv(txt)
             rescue
               txt = txt.gsub(%r{[^\r\n\t\x20-\x7e]}, '?')
             end
           else
-            ic ||= Iconv.new(l(:general_pdf_encoding), 'UTF-8')
+            if toUTF8 == false
+              ic ||= Iconv.new(l(:general_pdf_encoding), 'UTF-8')
+            else
+              ic ||= Iconv.new('UTF-8', l(:general_pdf_encoding))
+            end
             txtar = ""
             begin
               txtar += ic.iconv(txt)
