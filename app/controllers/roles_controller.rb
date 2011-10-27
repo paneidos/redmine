@@ -46,7 +46,7 @@ class RolesController < ApplicationController
 
   def edit
     @role = Role.find(params[:id])
-    if request.post? and @role.update_attributes(params[:role])
+    if request.put? and @role.update_attributes(params[:role])
       flash[:notice] = l(:notice_successful_update)
       redirect_to :action => 'index'
     else

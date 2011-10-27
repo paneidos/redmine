@@ -74,7 +74,7 @@ class BoardsController < ApplicationController
   end
 
   def edit
-    if request.post? && @board.update_attributes(params[:board])
+    if request.put? && @board.update_attributes(params[:board])
       redirect_to_settings_in_projects
     end
   end

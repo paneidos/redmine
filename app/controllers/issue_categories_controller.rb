@@ -53,7 +53,7 @@ class IssueCategoriesController < ApplicationController
   end
 
   def edit
-    if request.post? and @category.update_attributes(params[:category])
+    if request.put? and @category.update_attributes(params[:category])
       flash[:notice] = l(:notice_successful_update)
       redirect_to :controller => 'projects', :action => 'settings', :tab => 'categories', :id => @project
     end
