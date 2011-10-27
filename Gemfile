@@ -116,7 +116,7 @@ platforms :mri_19 do
   ## Getting mysql2 gem to work with Ruby on Rails 3.0 and Windows 7 64bit
   ## http://paul-wong-jr.blogspot.com/2011/06/getting-mysql2-gem-to-work-with-ruby-on.html
   group :mysql2 do
-    gem "mysql2", "~> 0.2.7"
+    gem "mysql2"
   end
 
   group :sqlite do
