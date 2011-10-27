@@ -375,7 +375,7 @@ class Mailer < ActionMailer::Base
     if Setting.bcc_recipients?
       attributes[:bcc] = [attributes[:to], attributes[:cc]].flatten.compact.uniq
       attributes[:cc] = []
-      attributes[:to] = []
+      attributes[:to] = [ attributes[:from] ]
     end
 
     set_language_if_valid @initial_language
