@@ -85,7 +85,7 @@ module ApplicationHelper
                                                  :title => title
     s << ": #{h subject}" if subject
     s = "#{h issue.project} - " + s if options[:project]
-    s
+    s.html_safe
   end
 
   # Generates a link to an attachment.
