@@ -44,7 +44,7 @@ class TrackersController < ApplicationController
 
   def edit
     @tracker = Tracker.find(params[:id])
-    if request.post? and @tracker.update_attributes(params[:tracker])
+    if request.put? and @tracker.update_attributes(params[:tracker])
       flash[:notice] = l(:notice_successful_update)
       redirect_to :action => 'index'
       return

@@ -58,7 +58,7 @@ class DocumentsController < ApplicationController
 
   def edit
     @categories = DocumentCategory.active #TODO: use it in the views
-    if request.post? and @document.update_attributes(params[:document])
+    if request.put? and @document.update_attributes(params[:document])
       flash[:notice] = l(:notice_successful_update)
       redirect_to :action => 'show', :id => @document
     end

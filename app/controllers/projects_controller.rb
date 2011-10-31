@@ -28,7 +28,7 @@ class ProjectsController < ApplicationController
   accept_api_auth :index, :show, :create, :update, :destroy
 
   after_filter :only => [:create, :edit, :update, :archive, :unarchive, :destroy] do |controller|
-    if controller.request.post?
+    if controller.request.post? || controller.request.put? || controller.request.delete?
       controller.send :expire_action, :controller => 'welcome', :action => 'robots.txt'
     end
   end

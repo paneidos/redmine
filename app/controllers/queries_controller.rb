@@ -60,7 +60,7 @@ class QueriesController < ApplicationController
   end
 
   def edit
-    if request.post?
+    if request.put?
       @query.filters = {}
       @query.add_filters(params[:fields] || params[:f], params[:operators] || params[:op], params[:values] || params[:v]) if params[:fields] || params[:f]
       @query.attributes = params[:query]

@@ -91,7 +91,7 @@ class MessagesController < ApplicationController
       @message.locked = params[:message]['locked']
       @message.sticky = params[:message]['sticky']
     end
-    if request.post? && @message.update_attributes(params[:message])
+    if request.put? && @message.update_attributes(params[:message])
       attachments = Attachment.attach_files(@message, params[:attachments])
       render_attachment_warning_if_needed(@message)
       flash[:notice] = l(:notice_successful_update)
