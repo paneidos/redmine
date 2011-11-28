@@ -127,10 +127,11 @@ class ApplicationController < ActionController::Base
   def require_login
     if !User.current.logged?
       # Extract only the basic url parameters on non-GET requests
+      protocol = request.ssl? "https://" : nil
       if request.get?
-        url = url_for(params)
+        url = url_for(params, :protocol => protocol)
       else
-        url = url_for(:controller => params[:controller], :action => params[:action], :id => params[:id], :project_id => params[:project_id])
+        url = url_for(:controller => params[:controller], :action => params[:action], :id => params[:id], :project_id => params[:project_id], :protocol => protocol)
       end
       respond_to do |format|
         format.html { redirect_to :controller => "account", :action => "login", :back_url => url }
