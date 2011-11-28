@@ -127,7 +127,7 @@ class ApplicationController < ActionController::Base
   def require_login
     if !User.current.logged?
       # Extract only the basic url parameters on non-GET requests
-      protocol = request.ssl? "https://" : nil
+      protocol = request.ssl? ? "https://" : nil
       if request.get?
         url = url_for(params, :protocol => protocol)
       else
