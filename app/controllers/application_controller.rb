@@ -129,7 +129,7 @@ class ApplicationController < ActionController::Base
       # Extract only the basic url parameters on non-GET requests
       protocol = request.ssl? ? "https://" : nil
       if request.get?
-        url = url_for(params, :protocol => protocol)
+        url = url_for(params.merge(:protocol => protocol))
       else
         url = url_for(:controller => params[:controller], :action => params[:action], :id => params[:id], :project_id => params[:project_id], :protocol => protocol)
       end
