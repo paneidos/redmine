@@ -51,14 +51,14 @@ module WatchersHelper
                :object_type => object.class.to_s.underscore,
                :object_id => object.id,
                :user_id => user}
-        s += ' ' + link_to_remote(image_tag('delete.png'),
+        s << ' ' << link_to_remote(image_tag('delete.png'),
                                   {:url => url},
                                   :href => url_for(url),
                                   :style => "vertical-align: middle",
                                   :class => "delete")
       end
-      "<li>#{ s }</li>"
+      content_tag :li, s
     end
-    lis.empty? ? "" : "<ul>#{ lis.join("\n") }</ul>".html_safe
+    (lis.empty? ? "" : "<ul>#{ lis.join("\n") }</ul>").html_safe
   end
 end
