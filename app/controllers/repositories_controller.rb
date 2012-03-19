@@ -40,7 +40,7 @@ class RepositoriesController < ApplicationController
       @repository = Repository.factory(params[:repository_scm])
       @repository.project = @project if @repository
     end
-    if request.put? && @repository
+    if request.post? && @repository
       p1 = params[:repository]
       p       = {}
       p_extra = {}
